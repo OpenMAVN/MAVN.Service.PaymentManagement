@@ -15,7 +15,7 @@ env:
   CLIENT_PROJECT: ./client/MAVN.Service.PaymentManagement.Client/MAVN.Service.PaymentManagement.Client.csproj
   GENERIC_CLIENT_PROJECT: ./client/MAVN.Service.PaymentIntegrationPlugin.Client/MAVN.Service.PaymentIntegrationPlugin.Client.csproj
   CONTRACT_PROJECT: ./contract/MAVN.Service.PaymentManagement.Contract/MAVN.Service.PaymentManagement.Contract.csproj
-  JOB_DOCKER_IMAGE: PaymentManagement-job
+  JOB_DOCKER_IMAGE: payment-management-job
   JOB_PROJECT: ./src/MAVN.Job.PaymentManagement/MAVN.Job.PaymentManagement.csproj
   SERVICE_DOCKER_IMAGE: PaymentManagement-service # this template value must be fixed in most cases
   SERVICE_PROJECT: ./src/MAVN.Service.PaymentManagement/MAVN.Service.PaymentManagement.csproj
