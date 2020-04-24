@@ -1,0 +1,26 @@
+PaymentManagementService:
+  Db:
+    LogsConnString:
+      settings-key: PaymentManagementService-LogsConnString
+      types:
+        - AzureTableStorage
+    SqlDbConnString:
+      settings-key: PaymentManagementService-SqlDbConnString
+  Rabbit:
+    Publishers:
+      ConnectionString:
+        settings-key: Pub-ConnectionString
+        types:
+          - RabbitMq
+SlackNotifications:
+    AzureQueue:
+        ConnectionString:
+            settings-key: SlackNotificationsConnString
+            types:
+                - AzureTableStorage
+        QueueName:
+            settings-key: SlackQueueName
+MonitoringServiceClient:
+    MonitoringServiceUrl:
+        settings-key: MonitoringServiceUrl
+
