@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MAVN.Service.PaymentIntegrationPlugin.Client.Models.Requests;
@@ -7,9 +8,6 @@ using Refit;
 
 namespace MAVN.Service.PaymentIntegrationPlugin.Client
 {
-    // This is an example of service controller interfaces.
-    // Actual interface methods must be placed here (not in IPaymentManagementClient interface).
-
     /// <summary>
     /// PaymentManagement client API interface.
     /// </summary>
@@ -21,6 +19,12 @@ namespace MAVN.Service.PaymentIntegrationPlugin.Client
         /// </summary>
         [Get("/api/payment/requirements")]
         Task<PaymentIntegrationResponse> GetPaymentIntegrationPropertiesAsync();
+
+        /// <summary>
+        /// Get a list of supported currencies
+        /// </summary>
+        [Get("/api/payment/currencies")]
+        Task<List<string>> GetPaymentIntegrationSupportedCurrenciesAsync();
 
         /// <summary>
         /// Checks configuration of payment integration for partner
