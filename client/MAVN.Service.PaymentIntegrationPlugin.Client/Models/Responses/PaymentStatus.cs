@@ -13,11 +13,13 @@
         Pending,
         /// <summary>Processing</summary>
         Processing,
+        /// <summary>Success</summary>
+        Success,
         /// <summary>Cancelled</summary>
         Cancelled,
         /// <summary>Rejected</summary>
         Rejected,
-        /// <summary>Success</summary>
-        Success,
+        /// <summary>Reserved</summary>
+        Reserved,
     }
 }

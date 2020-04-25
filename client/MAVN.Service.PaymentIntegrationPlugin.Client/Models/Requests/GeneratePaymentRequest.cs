@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 
 namespace MAVN.Service.PaymentIntegrationPlugin.Client.Models.Requests
 {
@@ -22,5 +23,8 @@ namespace MAVN.Service.PaymentIntegrationPlugin.Client.Models.Requests
 
         /// <summary>SuccessRedirectUrl</summary>
         public string FailRedirectUrl { get; set; }
+
+        /// <summary>Partner id</summary>
+        public Guid PartnerId { get; set; }
     }
 }

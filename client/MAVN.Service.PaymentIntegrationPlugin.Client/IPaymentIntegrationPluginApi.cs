@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MAVN.Service.PaymentIntegrationPlugin.Client.Models.Requests;
@@ -29,9 +28,9 @@ namespace MAVN.Service.PaymentIntegrationPlugin.Client
         /// <summary>
         /// Checks configuration of payment integration for partner
         /// </summary>
-        /// <param name="partnerId"></param>
+        /// <param name="request">Check payment integration request</param>
         [Post("/api/payment/check")]
-        Task<bool> CheckPaymentIntegrationAsync(Guid partnerId);
+        Task<bool> CheckPaymentIntegrationAsync(CheckPaymentIntegrationRequest request);
 
         /// <summary>
         /// Generates a payment from integrated payment provider.
@@ -43,8 +42,8 @@ namespace MAVN.Service.PaymentIntegrationPlugin.Client
         /// <summary>
         /// Checks for a payment status
         /// </summary>
-        /// <param name="paymentId"></param>
+        /// <param name="request">Check payment request</param>
         [Get("/api/payment")]
-        Task<PaymentStatus> CheckPaymentAsync(string paymentId);
+        Task<PaymentStatus> CheckPaymentAsync(CheckPaymentRequest request);
     }
 }
