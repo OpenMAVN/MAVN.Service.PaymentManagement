@@ -1,16 +1,20 @@
-﻿using JetBrains.Annotations;
+﻿using System.Threading.Tasks;
+using JetBrains.Annotations;
+using MAVN.Service.PaymentManagement.Client.Models.Responses;
 using Refit;
 
 namespace MAVN.Service.PaymentManagement.Client
 {
-    // This is an example of service controller interfaces.
-    // Actual interface methods must be placed here (not in IPaymentManagementClient interface).
-
     /// <summary>
     /// PaymentManagement client API interface.
     /// </summary>
     [PublicAPI]
     public interface IPaymentManagementApi
     {
+        /// <summary>
+        /// Retrieves a list of payment providers requirements.
+        /// </summary>
+        [Get("/api/payments/requirements")]
+        Task<AvailablePaymentProvidersRequirementsResponse> GetAvailablePaymentProvidersRequirementsAsync();
     }
 }

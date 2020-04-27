@@ -12,6 +12,12 @@ PaymentManagementService:
         settings-key: Pub-ConnectionString
         types:
           - RabbitMq
+  PaymentProviderIntegrationPlugins:
+    settings-key: PaymentManagementService-Plugins
+    types:
+          - JsonArray
+  DefaultPaymentProvider:
+    settings-key: PaymentManagementService-DefaultPaymentProvider
 SlackNotifications:
     AzureQueue:
         ConnectionString:

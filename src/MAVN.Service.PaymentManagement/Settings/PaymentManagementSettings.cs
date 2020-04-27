@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 using Lykke.SettingsReader.Attributes;
 
 namespace MAVN.Service.PaymentManagement.Settings
@@ -9,5 +10,9 @@ namespace MAVN.Service.PaymentManagement.Settings
         public DbSettings Db { get; set; }
 
         public RabbitMqSettings Rabbit { get; set; }
+
+        public List<PaymentProviderSettings> PaymentProviderIntegrationPlugins { get; set; }
+
+        public string DefaultPaymentProvider { get; set; }
     }
 }

@@ -1,8 +1,11 @@
-﻿using Autofac;
+﻿using System.Linq;
+using Autofac;
 using JetBrains.Annotations;
 using Lykke.Sdk;
 using Lykke.Sdk.Health;
 using Lykke.SettingsReader;
+using MAVN.Service.PaymentManagement.Domain.Services;
+using MAVN.Service.PaymentManagement.DomainServices;
 using MAVN.Service.PaymentManagement.Services;
 using MAVN.Service.PaymentManagement.Settings;
 
@@ -11,17 +14,15 @@ namespace MAVN.Service.PaymentManagement.Modules
     [UsedImplicitly]
     public class ServiceModule : Module
     {
-        private readonly IReloadingManager<AppSettings> _appSettings;
+        private readonly AppSettings _settings;
 
         public ServiceModule(IReloadingManager<AppSettings> appSettings)
         {
-            _appSettings = appSettings;
+            _settings = appSettings.CurrentValue;
         }
 
         protected override void Load(ContainerBuilder builder)
         {
-            // NOTE: Do not register entire settings in container, pass necessary settings to services which requires them
-
             builder.RegisterType<HealthService>()
                 .As<IHealthService>()
                 .SingleInstance();
@@ -35,7 +36,13 @@ namespace MAVN.Service.PaymentManagement.Modules
                 .AutoActivate()
                 .SingleInstance();
 
-            // TODO: Add your dependencies here
+            builder.RegisterType<PaymentProvidersService>()
+                .As<IPaymentProvidersService>()
+                .SingleInstance()
+                .WithParameter(
+                    TypedParameter.From(
+                        _settings.PaymentManagementService.PaymentProviderIntegrationPlugins.Select(i => (i.Name, i.IntegrationPluginUrl))))
+                .WithParameter(TypedParameter.From(_settings.PaymentManagementService.DefaultPaymentProvider));
         }
     }
 }

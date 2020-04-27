@@ -1,4 +1,5 @@
 ﻿using Lykke.HttpClientGenerator;
+using Lykke.HttpClientGenerator.Infrastructure;
 
 namespace MAVN.Service.PaymentIntegrationPlugin.Client
 {
@@ -13,8 +14,13 @@ namespace MAVN.Service.PaymentIntegrationPlugin.Client
         public IPaymentIntegrationPluginApi Api { get; private set; }
 
         /// <summary>C-tor</summary>
-        public PaymentIntegrationPluginClient(IHttpClientGenerator httpClientGenerator)
+        public PaymentIntegrationPluginClient(string serviceUrl)
         {
+            var clientBuilder = HttpClientGenerator.BuildForUrl(serviceUrl)
+                .WithAdditionalCallsWrapper(new ExceptionHandlerCallsWrapper())
+                .WithoutRetries();
+            var httpClientGenerator = clientBuilder.Create();
+
             Api = httpClientGenerator.Generate<IPaymentIntegrationPluginApi>();
         }
     }

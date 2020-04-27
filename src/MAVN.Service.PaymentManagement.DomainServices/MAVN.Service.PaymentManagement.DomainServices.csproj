@@ -8,6 +8,7 @@
     <PackageReference Include="Lykke.RabbitMqBroker" Version="7.13.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\client\MAVN.Service.PaymentIntegrationPlugin.Client\MAVN.Service.PaymentIntegrationPlugin.Client.csproj" />
     <ProjectReference Include="..\..\contract\MAVN.Service.PaymentManagement.Contract\MAVN.Service.PaymentManagement.Contract.csproj" />
     <ProjectReference Include="..\MAVN.Service.PaymentManagement.Domain\MAVN.Service.PaymentManagement.Domain.csproj" />
   </ItemGroup>

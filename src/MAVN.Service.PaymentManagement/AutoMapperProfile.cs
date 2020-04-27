@@ -1,4 +1,7 @@
-using AutoMapper;
+﻿using AutoMapper;
+using MAVN.Service.PaymentIntegrationPlugin.Client.Models.Responses;
+using MAVN.Service.PaymentManagement.Client.Models.Responses;
+using MAVN.Service.PaymentManagement.Domain;
 
 namespace MAVN.Service.PaymentManagement
 {
@@ -6,7 +9,8 @@ namespace MAVN.Service.PaymentManagement
     {
         public AutoMapperProfile()
         {
-            // TODO - add mappings here...
+            CreateMap<PaymentProviderRequirements, PaymentProviderProperties>();
+            CreateMap<PaymentIntegrationProperty, PaymentProviderRequirement>();
         }
     }
 }
