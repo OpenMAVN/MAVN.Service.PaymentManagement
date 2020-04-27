@@ -17,7 +17,7 @@ namespace MAVN.Service.PaymentIntegrationPlugin.Client
         /// Get a list of payment integration properties
         /// </summary>
         [Get("/api/payment/requirements")]
-        Task<PaymentIntegrationResponse> GetPaymentIntegrationPropertiesAsync();
+        Task<PaymentIntegrationPropertiesResponse> GetPaymentIntegrationPropertiesAsync();
 
         /// <summary>
         /// Get a list of supported currencies
