@@ -1,6 +1,7 @@
 ﻿using System.Data.Common;
 using JetBrains.Annotations;
 using Lykke.Common.MsSql;
+using MAVN.Service.PaymentManagement.MsSqlRepositories.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace MAVN.Service.PaymentManagement.MsSqlRepositories
@@ -8,6 +9,8 @@ namespace MAVN.Service.PaymentManagement.MsSqlRepositories
     public class PaymentManagementContext : MsSqlContext
     {
         private const string Schema = "payment";
+
+        internal DbSet<PaymentRequestEntity> PaymentRequests { get; set; }
 
         // empty constructor needed for EF migrations
         [UsedImplicitly]
@@ -34,7 +37,14 @@ namespace MAVN.Service.PaymentManagement.MsSqlRepositories
 
         protected override void OnLykkeModelCreating(ModelBuilder modelBuilder)
         {
-            // TODO put db entities models building code here
+            modelBuilder.Entity<PaymentRequestEntity>()
+                .HasIndex(p => p.CustomerId);
+
+            modelBuilder.Entity<PaymentRequestEntity>()
+                .HasIndex(p => p.PartnerId);
+
+            modelBuilder.Entity<PaymentRequestEntity>()
+                .HasIndex(p => p.Currency);
         }
     }
 }

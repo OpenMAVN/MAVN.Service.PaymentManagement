@@ -12,6 +12,9 @@ namespace MAVN.Service.PaymentIntegrationPlugin.Client.Models.Requests
         /// <summary>Payment request id</summary>
         public string PaymentRequestId { get; set; }
 
+        /// <summary>Partner id</summary>
+        public Guid PartnerId { get; set; }
+
         /// <summary>Amount</summary>
         public decimal Amount { get; set; }
 
@@ -23,8 +26,5 @@ namespace MAVN.Service.PaymentIntegrationPlugin.Client.Models.Requests
 
         /// <summary>SuccessRedirectUrl</summary>
         public string FailRedirectUrl { get; set; }
-
-        /// <summary>Partner id</summary>
-        public Guid PartnerId { get; set; }
     }
 }

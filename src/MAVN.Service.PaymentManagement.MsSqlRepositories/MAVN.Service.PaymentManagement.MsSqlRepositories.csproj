@@ -18,8 +18,4 @@
     <ProjectReference Include="..\MAVN.Service.PaymentManagement.Domain\MAVN.Service.PaymentManagement.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Entities\" />
-  </ItemGroup>
-
 </Project>

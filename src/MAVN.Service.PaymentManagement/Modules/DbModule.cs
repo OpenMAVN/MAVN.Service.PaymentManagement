@@ -21,8 +21,8 @@ namespace MAVN.Service.PaymentManagement.Modules
 
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<PaymentManagementRepository>()
-                .As<IPaymentManagementRepository>()
+            builder.RegisterType<PaymentRequestsRepository>()
+                .As<IPaymentRequestsRepository>()
                 .SingleInstance();
 
             builder.RegisterMsSql(

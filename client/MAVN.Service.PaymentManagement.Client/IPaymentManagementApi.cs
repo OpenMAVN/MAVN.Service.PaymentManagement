@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MAVN.Service.PaymentManagement.Client.Models.Requests;
 using MAVN.Service.PaymentManagement.Client.Models.Responses;
 using Refit;
 
@@ -16,5 +17,33 @@ namespace MAVN.Service.PaymentManagement.Client
         /// </summary>
         [Get("/api/payments/requirements")]
         Task<AvailablePaymentProvidersRequirementsResponse> GetAvailablePaymentProvidersRequirementsAsync();
+
+        /// <summary>
+        /// Get a list of supported currencies
+        /// </summary>
+        [Get("/api/payments/currencies")]
+        Task<PaymentIntegrationsSupportedCurrenciesResponse> GetPaymentIntegrationsSupportedCurrenciesAsync(
+            [Query] PaymentIntegrationsSupportedCurrenciesRequest request);
+
+        /// <summary>
+        /// Checks configuration of payment integration for partner
+        /// </summary>
+        /// <param name="request">Check payment integration request</param>
+        [Post("/api/payments/check")]
+        Task<bool> CheckPaymentIntegrationAsync(PaymentIntegrationCheckRequest request);
+
+        /// <summary>
+        /// Generates a payment from integrated payment provider.
+        /// </summary>
+        /// <param name="request">Payment generation request</param>
+        [Post("/api/payments")]
+        Task<PaymentGenerationResponse> GeneratePaymentAsync(PaymentGenerationRequest request);
+
+        /// <summary>
+        /// Validates payment status
+        /// </summary>
+        /// <param name="request">Validate payment request</param>
+        [Post("/api/payments/validation")]
+        Task ValidatePaymentAsync(PaymentValidationRequest request);
     }
 }

@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using MAVN.Service.PaymentManagement.Client;
+using MAVN.Service.PaymentManagement.Client.Models.Requests;
 using MAVN.Service.PaymentManagement.Client.Models.Responses;
+using MAVN.Service.PaymentManagement.Domain;
 using MAVN.Service.PaymentManagement.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,6 +29,7 @@ namespace MAVN.Service.PaymentManagement.Controllers
         /// Retrieves a list of payment providers requirements.
         /// </summary>
         [HttpGet("requirements")]
+        [ProducesResponseType(typeof(AvailablePaymentProvidersRequirementsResponse), (int)HttpStatusCode.OK)]
         public async Task<AvailablePaymentProvidersRequirementsResponse> GetAvailablePaymentProvidersRequirementsAsync()
         {
             var requirements = await _paymentProvidersService.GetPaymentProvidersRequirementsAsync();
@@ -34,6 +38,61 @@ namespace MAVN.Service.PaymentManagement.Controllers
             {
                 ProvidersRequirements = _mapper.Map<List<PaymentProviderProperties>>(requirements),
             };
+        }
+
+        /// <summary>
+        /// Get a list of supported currencies
+        /// </summary>
+        [HttpGet("currencies")]
+        [ProducesResponseType(typeof(PaymentIntegrationsSupportedCurrenciesResponse), (int)HttpStatusCode.OK)]
+        public async Task<PaymentIntegrationsSupportedCurrenciesResponse> GetPaymentIntegrationsSupportedCurrenciesAsync(
+            [FromQuery] PaymentIntegrationsSupportedCurrenciesRequest request)
+        {
+            var supportedCurrencies = await _paymentProvidersService.GetSupportedCurrenciesAsync(request.PaymentProvider, request.PartnerId);
+
+            return new PaymentIntegrationsSupportedCurrenciesResponse
+            {
+                ProvidersSupportedCurrencies = _mapper.Map<List<PaymentIntegrationSupportedCurrencies>>(supportedCurrencies),
+            };
+        }
+
+        /// <summary>
+        /// Checks configuration of payment integration for partner
+        /// </summary>
+        /// <param name="request">Check payment integration request</param>
+        [HttpPost("check")]
+        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
+        public Task<bool> CheckPaymentIntegrationAsync(PaymentIntegrationCheckRequest request)
+        {
+            return _paymentProvidersService.CheckPaymentIntegrationAsync(request.PartnerId);
+        }
+
+        /// <summary>
+        /// Generates a payment from integrated payment provider.
+        /// </summary>
+        /// <param name="request">Payment generation request</param>
+        [HttpPost]
+        [ProducesResponseType(typeof(PaymentGenerationResponse), (int)HttpStatusCode.OK)]
+        public async Task<PaymentGenerationResponse> GeneratePaymentAsync(PaymentGenerationRequest request)
+        {
+            var requestData = _mapper.Map<GeneratePaymentData>(request);
+
+            var result = await _paymentProvidersService.GeneratePaymentAsync(requestData);
+
+            return _mapper.Map<PaymentGenerationResponse>(result);
+        }
+
+        /// <summary>
+        /// Validates payment status
+        /// </summary>
+        /// <param name="request">Validate payment request</param>
+        [HttpPost("/validation")]
+        [ProducesResponseType(typeof(void), (int)HttpStatusCode.OK)]
+        public Task ValidatePaymentAsync(PaymentValidationRequest request)
+        {
+            var requestData = _mapper.Map<PaymentValidationData>(request);
+
+            return _paymentProvidersService.ValidatePaymentAsync(requestData);
         }
     }
 }
