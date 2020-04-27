@@ -10,7 +10,7 @@ namespace MAVN.Service.PaymentManagement.Modules
     [UsedImplicitly]
     public class RabbitMqModule : Module
     {
-        private const string PubExchangeName = "REPLACE THIS WITH PROPER EXCHANGE NAME"; // TODO pass proper exchange name
+        private const string PubExchangeName = "lykke.payment.completed";
 
         private readonly RabbitMqSettings _settings;
 
@@ -29,7 +29,7 @@ namespace MAVN.Service.PaymentManagement.Modules
         // registered publishers could be esolved by IRabbitPublisher<TMessage> interface
         private void RegisterRabbitMqPublishers(ContainerBuilder builder)
         {
-            builder.RegisterJsonRabbitPublisher<MyPublishedMessage>(
+            builder.RegisterJsonRabbitPublisher<PaymentCompletedEvent>(
                 _settings.Publishers.ConnectionString,
                 PubExchangeName);
         }
