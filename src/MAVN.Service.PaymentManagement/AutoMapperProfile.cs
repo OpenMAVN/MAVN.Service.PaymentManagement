@@ -9,7 +9,9 @@ namespace MAVN.Service.PaymentManagement
     {
         public AutoMapperProfile()
         {
-            CreateMap<PaymentProviderRequirements, PaymentProviderProperties>();
+            CreateMap<PaymentProviderRequirements, PaymentProviderProperties>()
+                .ForMember(c => c.Properties, c => c.MapFrom(s => s.Requirements));
+            CreateMap<PaymentProviderRequirement, PaymentProviderProperty>();
             CreateMap<PaymentIntegrationProperty, PaymentProviderRequirement>();
         }
     }

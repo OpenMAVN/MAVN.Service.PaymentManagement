@@ -22,6 +22,10 @@ namespace MAVN.Service.PaymentManagement.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Retrieves a list of payment providers requirements.
+        /// </summary>
+        [HttpGet("requirements")]
         public async Task<AvailablePaymentProvidersRequirementsResponse> GetAvailablePaymentProvidersRequirementsAsync()
         {
             var requirements = await _paymentProvidersService.GetPaymentProvidersRequirementsAsync();
