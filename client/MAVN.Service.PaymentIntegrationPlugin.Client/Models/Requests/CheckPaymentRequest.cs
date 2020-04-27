@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 
 namespace MAVN.Service.PaymentIntegrationPlugin.Client.Models.Requests
 {
@@ -12,6 +13,6 @@ namespace MAVN.Service.PaymentIntegrationPlugin.Client.Models.Requests
         public string PaymentId { get; set; }
 
         /// <summary>Partner id</summary>
-        public string PartnerId { get; set; }
+        public Guid PartnerId { get; set; }
     }
 }
