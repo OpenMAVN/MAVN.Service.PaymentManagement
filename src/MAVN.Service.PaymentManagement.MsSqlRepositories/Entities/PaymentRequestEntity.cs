@@ -1,9 +1,11 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using MAVN.Service.PaymentManagement.Domain;
 
 namespace MAVN.Service.PaymentManagement.MsSqlRepositories.Entities
 {
+    [Table("payment_requests")]
     public class PaymentRequestEntity : IPaymentRequest
     {
         [Key]

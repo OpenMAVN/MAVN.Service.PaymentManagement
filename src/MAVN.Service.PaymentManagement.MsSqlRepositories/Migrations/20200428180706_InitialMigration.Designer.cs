@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MAVN.Service.PaymentManagement.MsSqlRepositories.Migrations
 {
     [DbContext(typeof(PaymentManagementContext))]
-    [Migration("20200427200043_InitialMigration")]
+    [Migration("20200428180706_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -63,7 +63,7 @@ namespace MAVN.Service.PaymentManagement.MsSqlRepositories.Migrations
 
                     b.HasIndex("PartnerId");
 
-                    b.ToTable("PaymentRequests");
+                    b.ToTable("payment_requests");
                 });
 #pragma warning restore 612, 618
         }

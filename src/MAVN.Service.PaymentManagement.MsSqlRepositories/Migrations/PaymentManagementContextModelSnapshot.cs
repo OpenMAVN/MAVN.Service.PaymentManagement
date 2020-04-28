@@ -61,7 +61,7 @@ namespace MAVN.Service.PaymentManagement.MsSqlRepositories.Migrations
 
                     b.HasIndex("PartnerId");
 
-                    b.ToTable("PaymentRequests");
+                    b.ToTable("payment_requests");
                 });
 #pragma warning restore 612, 618
         }

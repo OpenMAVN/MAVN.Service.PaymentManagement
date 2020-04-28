@@ -11,7 +11,7 @@ namespace MAVN.Service.PaymentManagement.MsSqlRepositories.Migrations
                 name: "payment");
 
             migrationBuilder.CreateTable(
-                name: "PaymentRequests",
+                name: "payment_requests",
                 schema: "payment",
                 columns: table => new
                 {
@@ -27,32 +27,32 @@ namespace MAVN.Service.PaymentManagement.MsSqlRepositories.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PaymentRequests", x => x.Id);
+                    table.PrimaryKey("PK_payment_requests", x => x.Id);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_PaymentRequests_Currency",
+                name: "IX_payment_requests_Currency",
                 schema: "payment",
-                table: "PaymentRequests",
+                table: "payment_requests",
                 column: "Currency");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PaymentRequests_CustomerId",
+                name: "IX_payment_requests_CustomerId",
                 schema: "payment",
-                table: "PaymentRequests",
+                table: "payment_requests",
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PaymentRequests_PartnerId",
+                name: "IX_payment_requests_PartnerId",
                 schema: "payment",
-                table: "PaymentRequests",
+                table: "payment_requests",
                 column: "PartnerId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "PaymentRequests",
+                name: "payment_requests",
                 schema: "payment");
         }
     }
