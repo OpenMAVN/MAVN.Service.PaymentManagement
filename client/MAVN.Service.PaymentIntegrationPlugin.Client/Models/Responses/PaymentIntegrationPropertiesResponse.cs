@@ -9,6 +9,9 @@ namespace MAVN.Service.PaymentIntegrationPlugin.Client.Models.Responses
     [PublicAPI]
     public class PaymentIntegrationPropertiesResponse
     {
+        /// <summary>Payment provider</summary>
+        public string PaymentProvider { get; set; }
+
         /// <summary>Properties list</summary>
         public List<PaymentIntegrationProperty> Properties { get; set; }
     }

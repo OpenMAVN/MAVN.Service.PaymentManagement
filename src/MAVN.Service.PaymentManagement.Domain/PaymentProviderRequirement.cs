@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MAVN.Service.PaymentManagement.Domain
+﻿namespace MAVN.Service.PaymentManagement.Domain
 {
     public class PaymentProviderRequirement
     {
         public string Name { get; set; }
 
         public string Description { get; set; }
+
+        public string JsonKey { get; set; }
 
         public bool IsOptional { get; set; }
 

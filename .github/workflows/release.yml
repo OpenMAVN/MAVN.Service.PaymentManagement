@@ -7,7 +7,7 @@ on:
 
 env:
   RELEASE_CLIENT: true
-  RELEASE_GENERIC_CLIENT: false #change to add changes for generic plugin contract
+  RELEASE_GENERIC_CLIENT: true #use 'true' to add changes for generic plugin contract
   RELEASE_CONTRACT: true
   RELEASE_JOB: false
   RELEASE_SERVICE: true

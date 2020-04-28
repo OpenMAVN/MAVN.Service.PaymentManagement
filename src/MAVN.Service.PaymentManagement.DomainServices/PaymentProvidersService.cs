@@ -60,7 +60,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
                 result.Add(
                     new PaymentProviderRequirements
                     {
-                        PaymentProvider = pair.Key,
+                        PaymentProvider = pluginRequirements.PaymentProvider,
                         Requirements = _mapper.Map<List<PaymentProviderRequirement>>(pluginRequirements.Properties),
                     });
             }
