@@ -15,6 +15,10 @@ namespace MAVN.Service.PaymentManagement.Settings
 
         public string DefaultPaymentProvider { get; set; }
 
+        public string PaymentSuccessUrlTemplate { get; set; }
+
+        public string PaymentFailUrlTemplate { get; set; }
+
         public string RedisConnectionString { get; set; }
     }
 }

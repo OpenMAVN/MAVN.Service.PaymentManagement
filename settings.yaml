@@ -18,6 +18,10 @@ PaymentManagementService:
           - JsonArray
   DefaultPaymentProvider:
     settings-key: PaymentManagementService-DefaultPaymentProvider
+  PaymentSuccessUrlTemplate:
+    settings-key: PaymentManagementService-PaymentSuccessUrlTemplate
+  PaymentFailUrlTemplate:
+    settings-key: PaymentManagementService-PaymentFailUrlTemplate
   RedisConnectionString:
     settings-key: PaymentManagementService-RedisConnectionString
 SlackNotifications:

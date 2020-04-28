@@ -43,7 +43,9 @@ namespace MAVN.Service.PaymentManagement.Modules
                 .WithParameter(
                     TypedParameter.From(
                         _settings.PaymentProviderIntegrationPlugins.Select(i => (i.Name, i.IntegrationPluginUrl))))
-                .WithParameter(TypedParameter.From(_settings.DefaultPaymentProvider));
+                .WithParameter("defaultProvider", _settings.DefaultPaymentProvider)
+                .WithParameter("successUrlTemplate", _settings.PaymentSuccessUrlTemplate)
+                .WithParameter("failUrlTemplate", _settings.PaymentFailUrlTemplate);
 
             builder.Register(context =>
                 {
