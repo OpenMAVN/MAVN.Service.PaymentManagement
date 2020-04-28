@@ -134,7 +134,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
 
             return new PaymentGenerationResult
             {
-                PaymentRequestId = paymentRequestIdStr,
+                PaymentRequestId = paymentRequestId,
                 PaymentPageUrl = result.PaymentPageUrl,
             };
         }
@@ -157,10 +157,11 @@ namespace MAVN.Service.PaymentManagement.DomainServices
             if (paymentRequest.PaymentStatus == currentStatus)
                 return;
 
+            var paymentRequestIdStr = data.PaymentRequestId.ToString();
             var partnerIdStr = data.PartnerId.ToString();
             for (int i = 0; i < MaxAttemptsCount; ++i)
             {
-                var locked = await _db.LockTakeAsync(data.PaymentRequestId, partnerIdStr, _lockTimeout);
+                var locked = await _db.LockTakeAsync(paymentRequestIdStr, partnerIdStr, _lockTimeout);
                 if (locked)
                 {
                     await Task.Delay(_lockTimeout);
@@ -172,14 +173,14 @@ namespace MAVN.Service.PaymentManagement.DomainServices
                 paymentRequest.ModifiedAt = now;
                 await _paymentRequestsRepository.UpdateAsync(paymentRequest);
 
-                await _db.LockReleaseAsync(data.PaymentRequestId, partnerIdStr);
+                await _db.LockReleaseAsync(paymentRequestIdStr, partnerIdStr);
 
                 if (paymentStatus != PaymentStatus.Success)
                     return;
 
                 var evt = new PaymentCompletedEvent
                 {
-                    PaymentRequestId = data.PaymentRequestId,
+                    PaymentRequestId = paymentRequestIdStr,
                     CustomerId = paymentRequest.CustomerId,
                     PartnerId = paymentRequest.PartnerId,
                     Amount = paymentRequest.Amount,
@@ -191,7 +192,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
                 return;
             }
 
-            throw new InvalidOperationException($"Can't lock for payment request {data.PaymentRequestId}");
+            throw new InvalidOperationException($"Can't lock for payment request {paymentRequestIdStr}");
         }
 
         private string ResolvePaymentProviderClientUrl(Guid partnerId)

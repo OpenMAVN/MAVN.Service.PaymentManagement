@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using AutoMapper;
 using Lykke.Common.MsSql;
 using MAVN.Service.PaymentManagement.Domain;
@@ -32,7 +33,7 @@ namespace MAVN.Service.PaymentManagement.MsSqlRepositories.Repositories
             }
         }
 
-        public async Task<IPaymentRequest> GetById(string paymentRequestId)
+        public async Task<IPaymentRequest> GetById(Guid paymentRequestId)
         {
             using (var context = _contextFactory.CreateDataContext())
             {

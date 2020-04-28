@@ -10,7 +10,7 @@ namespace MAVN.Service.PaymentManagement.Client.Models.Requests
     public class PaymentValidationRequest
     {
         /// <summary>Payment request id</summary>
-        public string PaymentRequestId { get; set; }
+        public Guid PaymentRequestId { get; set; }
 
         /// <summary>Partner id</summary>
         public Guid PartnerId { get; set; }

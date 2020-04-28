@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 
 namespace MAVN.Service.PaymentManagement.Client.Models.Responses
 {
@@ -12,6 +13,6 @@ namespace MAVN.Service.PaymentManagement.Client.Models.Responses
         public string PaymentPageUrl { get; set; }
 
         /// <summary>Payment request id</summary>
-        public string PaymentRequestId { get; set; }
+        public Guid PaymentRequestId { get; set; }
     }
 }
