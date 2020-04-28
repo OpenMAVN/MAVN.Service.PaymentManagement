@@ -11,13 +11,18 @@ using MAVN.Service.PaymentManagement.Contract;
 using MAVN.Service.PaymentManagement.Domain;
 using MAVN.Service.PaymentManagement.Domain.Repositories;
 using MAVN.Service.PaymentManagement.Domain.Services;
+using StackExchange.Redis;
 
 namespace MAVN.Service.PaymentManagement.DomainServices
 {
     public class PaymentProvidersService : IPaymentProvidersService
     {
+        private const int MaxAttemptsCount = 5;
+
         private readonly IPaymentRequestsRepository _paymentRequestsRepository;
         private readonly IRabbitPublisher<PaymentCompletedEvent> _rabbitPublisher;
+        private readonly IDatabase _db;
+        private readonly TimeSpan _lockTimeout = TimeSpan.FromMinutes(1);
         private readonly string _defaultProvider;
         private readonly string _successUrlTemplate;
         private readonly string _failUrlTemplate;
@@ -27,6 +32,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
         public PaymentProvidersService(
             IPaymentRequestsRepository paymentRequestsRepository,
             IRabbitPublisher<PaymentCompletedEvent> rabbitPublisher,
+            IConnectionMultiplexer connectionMultiplexer,
             IEnumerable<(string name, string url)> integrationPlugins,
             string defaultProvider,
             string successUrlTemplate,
@@ -35,6 +41,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
         {
             _paymentRequestsRepository = paymentRequestsRepository;
             _rabbitPublisher = rabbitPublisher;
+            _db = connectionMultiplexer.GetDatabase();
             _pluginsDict = integrationPlugins.ToDictionary(i => i.name, i => i.url);
             _defaultProvider = defaultProvider;
             _successUrlTemplate = successUrlTemplate;
@@ -150,24 +157,41 @@ namespace MAVN.Service.PaymentManagement.DomainServices
             if (paymentRequest.PaymentStatus == currentStatus)
                 return;
 
-            var now = DateTime.UtcNow;
-            paymentRequest.PaymentStatus = currentStatus;
-            paymentRequest.ModifiedAt = now;
-            await _paymentRequestsRepository.UpdateAsync(paymentRequest);
-
-            if (paymentStatus != PaymentStatus.Success)
-                return;
-
-            var evt = new PaymentCompletedEvent
+            var partnerIdStr = data.PartnerId.ToString();
+            for (int i = 0; i < MaxAttemptsCount; ++i)
             {
-                PaymentRequestId = data.PaymentRequestId,
-                CustomerId = paymentRequest.CustomerId,
-                PartnerId = paymentRequest.PartnerId,
-                Amount = paymentRequest.Amount,
-                Currency = paymentRequest.Currency,
-                Timestamp = now,
-            };
-            await _rabbitPublisher.PublishAsync(evt);
+                var locked = await _db.LockTakeAsync(data.PaymentRequestId, partnerIdStr, _lockTimeout);
+                if (locked)
+                {
+                    await Task.Delay(_lockTimeout);
+                    continue;
+                }
+
+                var now = DateTime.UtcNow;
+                paymentRequest.PaymentStatus = currentStatus;
+                paymentRequest.ModifiedAt = now;
+                await _paymentRequestsRepository.UpdateAsync(paymentRequest);
+
+                await _db.LockReleaseAsync(data.PaymentRequestId, partnerIdStr);
+
+                if (paymentStatus != PaymentStatus.Success)
+                    return;
+
+                var evt = new PaymentCompletedEvent
+                {
+                    PaymentRequestId = data.PaymentRequestId,
+                    CustomerId = paymentRequest.CustomerId,
+                    PartnerId = paymentRequest.PartnerId,
+                    Amount = paymentRequest.Amount,
+                    Currency = paymentRequest.Currency,
+                    Timestamp = now,
+                };
+                await _rabbitPublisher.PublishAsync(evt);
+
+                return;
+            }
+
+            throw new InvalidOperationException($"Can't lock for payment request {data.PaymentRequestId}");
         }
 
         private string ResolvePaymentProviderClientUrl(Guid partnerId)

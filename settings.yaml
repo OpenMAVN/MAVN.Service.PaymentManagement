@@ -18,6 +18,8 @@ PaymentManagementService:
           - JsonArray
   DefaultPaymentProvider:
     settings-key: PaymentManagementService-DefaultPaymentProvider
+  RedisConnectionString:
+    settings-key: PaymentManagementService-RedisConnectionString
 SlackNotifications:
     AzureQueue:
         ConnectionString:

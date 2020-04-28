@@ -14,5 +14,7 @@ namespace MAVN.Service.PaymentManagement.Settings
         public List<PaymentProviderSettings> PaymentProviderIntegrationPlugins { get; set; }
 
         public string DefaultPaymentProvider { get; set; }
+
+        public string RedisConnectionString { get; set; }
     }
 }
