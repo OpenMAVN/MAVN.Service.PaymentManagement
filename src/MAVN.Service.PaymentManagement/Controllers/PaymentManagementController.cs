@@ -86,7 +86,7 @@ namespace MAVN.Service.PaymentManagement.Controllers
         /// Validates payment status
         /// </summary>
         /// <param name="request">Validate payment request</param>
-        [HttpPost("/validation")]
+        [HttpPost("validation")]
         [ProducesResponseType(typeof(void), (int)HttpStatusCode.OK)]
         public Task ValidatePaymentAsync(PaymentValidationRequest request)
         {

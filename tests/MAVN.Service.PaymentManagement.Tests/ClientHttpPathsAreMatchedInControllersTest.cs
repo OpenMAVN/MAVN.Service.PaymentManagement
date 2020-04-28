@@ -82,7 +82,7 @@ namespace MAVN.Service.PaymentManagement.Tests
                         var controllerRoute = controllerRouteAttr.ConstructorArguments[0].Value.ToString();
                         implRoute = string.IsNullOrWhiteSpace(implRoute)
                             ? controllerRoute.Trim('/')
-                            : $"{controllerRoute.Trim('/')}/{implRoute.TrimStart('/')}";
+                            : $"{controllerRoute.Trim('/')}/{implRoute}";
                     }
 
                     if (apiRoute != implRoute)
