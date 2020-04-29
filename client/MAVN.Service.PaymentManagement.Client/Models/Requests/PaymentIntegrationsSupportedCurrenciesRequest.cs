@@ -15,6 +15,6 @@ namespace MAVN.Service.PaymentManagement.Client.Models.Requests
 
         /// <summary>Partner id</summary>
         /// <remarks>Can be null.</remarks>
-        public Guid PartnerId { get; set; }
+        public Guid? PartnerId { get; set; }
     }
 }
