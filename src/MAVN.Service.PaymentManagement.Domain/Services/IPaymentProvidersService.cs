@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MAVN.Service.PaymentManagement.Domain.Enums;
 
 namespace MAVN.Service.PaymentManagement.Domain.Services
 {
@@ -10,7 +11,7 @@ namespace MAVN.Service.PaymentManagement.Domain.Services
 
         Task<List<PaymentProviderSupportedCurrencies>> GetSupportedCurrenciesAsync(string paymentProvider, Guid? partnerId);
 
-        Task<bool> CheckPaymentIntegrationAsync(Guid partnerId);
+        Task<PaymentIntegrationCkeckErrorCodes> CheckPaymentIntegrationAsync(Guid partnerId);
 
         Task<PaymentGenerationResult> GeneratePaymentAsync(GeneratePaymentData data);
 

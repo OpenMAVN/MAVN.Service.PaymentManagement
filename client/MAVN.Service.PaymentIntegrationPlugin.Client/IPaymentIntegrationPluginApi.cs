@@ -30,7 +30,7 @@ namespace MAVN.Service.PaymentIntegrationPlugin.Client
         /// </summary>
         /// <param name="request">Check payment integration request</param>
         [Post("/api/payment/check")]
-        Task<bool> CheckPaymentIntegrationAsync(CheckPaymentIntegrationRequest request);
+        Task<CheckIntegrationErrorCode> CheckPaymentIntegrationAsync(CheckPaymentIntegrationRequest request);
 
         /// <summary>
         /// Generates a payment from integrated payment provider.
@@ -44,6 +44,6 @@ namespace MAVN.Service.PaymentIntegrationPlugin.Client
         /// </summary>
         /// <param name="request">Check payment request</param>
         [Get("/api/payment")]
-        Task<PaymentStatus> CheckPaymentAsync(CheckPaymentRequest request);
+        Task<PaymentStatusResponse> CheckPaymentAsync(CheckPaymentRequest request);
     }
 }

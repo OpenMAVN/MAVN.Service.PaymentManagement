@@ -8,6 +8,9 @@ namespace MAVN.Service.PaymentIntegrationPlugin.Client.Models.Responses
     [PublicAPI]
     public class PaymentResponse
     {
+        /// <summary>Error code</summary>
+        public CheckIntegrationErrorCode ErrorCode { get; set; }
+
         /// <summary>Payment page url</summary>
         public string PaymentPageUrl { get; set; }
 

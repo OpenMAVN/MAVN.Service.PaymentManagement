@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Common.Log;
+using Lykke.Common.Log;
 using Lykke.RabbitMqBroker.Publisher;
 using MAVN.Service.PaymentIntegrationPlugin.Client;
 using MAVN.Service.PaymentIntegrationPlugin.Client.Models.Requests;
 using MAVN.Service.PaymentIntegrationPlugin.Client.Models.Responses;
 using MAVN.Service.PaymentManagement.Contract;
 using MAVN.Service.PaymentManagement.Domain;
+using MAVN.Service.PaymentManagement.Domain.Enums;
 using MAVN.Service.PaymentManagement.Domain.Repositories;
 using MAVN.Service.PaymentManagement.Domain.Services;
 using StackExchange.Redis;
@@ -28,6 +31,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
         private readonly string _failUrlTemplate;
         private readonly Dictionary<string, string> _pluginsDict;
         private readonly IMapper _mapper;
+        private readonly ILog _log;
 
         public PaymentProvidersService(
             IPaymentRequestsRepository paymentRequestsRepository,
@@ -37,7 +41,8 @@ namespace MAVN.Service.PaymentManagement.DomainServices
             string defaultProvider,
             string successUrlTemplate,
             string failUrlTemplate,
-            IMapper mapper)
+            IMapper mapper,
+            ILogFactory logFactory)
         {
             _paymentRequestsRepository = paymentRequestsRepository;
             _rabbitPublisher = rabbitPublisher;
@@ -47,6 +52,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
             _successUrlTemplate = successUrlTemplate;
             _failUrlTemplate = failUrlTemplate;
             _mapper = mapper;
+            _log = logFactory.CreateLog(this);
         }
 
         public async Task<List<PaymentProviderRequirements>> GetPaymentProvidersRequirementsAsync()
@@ -92,12 +98,13 @@ namespace MAVN.Service.PaymentManagement.DomainServices
             return result;
         }
 
-        public Task<bool> CheckPaymentIntegrationAsync(Guid partnerId)
+        public async Task<PaymentIntegrationCkeckErrorCodes> CheckPaymentIntegrationAsync(Guid partnerId)
         {
             var pluginUrl = ResolvePaymentProviderClientUrl(partnerId);
             var pluginClient = new PaymentIntegrationPluginClient(pluginUrl);
-            return pluginClient.Api.CheckPaymentIntegrationAsync(
+            var errorCode = await pluginClient.Api.CheckPaymentIntegrationAsync(
                 new CheckPaymentIntegrationRequest { PartnerId  = partnerId });
+            return _mapper.Map<PaymentIntegrationCkeckErrorCodes>(errorCode);
         }
 
         public async Task<PaymentGenerationResult> GeneratePaymentAsync(GeneratePaymentData data)
@@ -153,9 +160,19 @@ namespace MAVN.Service.PaymentManagement.DomainServices
                     PartnerId = data.PartnerId,
                     PaymentId = paymentRequest.PaymentId,
                 });
-            var currentStatus = paymentStatus.ToString();
+            if (paymentStatus.ErrorCode != CheckIntegrationErrorCode.Success)
+            {
+                _log.Warning($"Received an error during payment validation - {paymentStatus.ErrorCode}");
+                return;
+            }
+            var currentStatus = paymentStatus.PaymentStatus.ToString();
             if (paymentRequest.PaymentStatus == currentStatus)
                 return;
+            if (paymentStatus.PaymentStatus == PaymentStatus.Success)
+            {
+                _log.Warning($"Received {currentStatus} for a payment marked as succeeded");
+                return;
+            }
 
             var paymentRequestIdStr = data.PaymentRequestId.ToString();
             var partnerIdStr = data.PartnerId.ToString();
@@ -164,18 +181,22 @@ namespace MAVN.Service.PaymentManagement.DomainServices
                 var locked = await _db.LockTakeAsync(paymentRequestIdStr, partnerIdStr, _lockTimeout);
                 if (locked)
                 {
+                    _log.Info("Couldn't lock for payment request", paymentRequestIdStr);
                     await Task.Delay(_lockTimeout);
                     continue;
                 }
 
                 var now = DateTime.UtcNow;
+                var previousStatus = paymentRequest.PaymentStatus;
                 paymentRequest.PaymentStatus = currentStatus;
                 paymentRequest.ModifiedAt = now;
                 await _paymentRequestsRepository.UpdateAsync(paymentRequest);
 
+                _log.Info($"Updated payment status to {currentStatus} from {previousStatus}", paymentRequestIdStr);
+
                 await _db.LockReleaseAsync(paymentRequestIdStr, partnerIdStr);
 
-                if (paymentStatus != PaymentStatus.Success)
+                if (paymentStatus.PaymentStatus != PaymentStatus.Success)
                     return;
 
                 var evt = new PaymentCompletedEvent
@@ -188,6 +209,8 @@ namespace MAVN.Service.PaymentManagement.DomainServices
                     Timestamp = now,
                 };
                 await _rabbitPublisher.PublishAsync(evt);
+
+                _log.Info("Publiched payment completed event", evt);
 
                 return;
             }

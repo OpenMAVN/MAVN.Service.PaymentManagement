@@ -61,10 +61,11 @@ namespace MAVN.Service.PaymentManagement.Controllers
         /// </summary>
         /// <param name="request">Check payment integration request</param>
         [HttpPost("check")]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public Task<bool> CheckPaymentIntegrationAsync(PaymentIntegrationCheckRequest request)
+        [ProducesResponseType(typeof(CheckPaymentIntegrationErrorCode), (int)HttpStatusCode.OK)]
+        public async Task<CheckPaymentIntegrationErrorCode> CheckPaymentIntegrationAsync(PaymentIntegrationCheckRequest request)
         {
-            return _paymentProvidersService.CheckPaymentIntegrationAsync(request.PartnerId);
+            var errorCode = await _paymentProvidersService.CheckPaymentIntegrationAsync(request.PartnerId);
+            return _mapper.Map<CheckPaymentIntegrationErrorCode>(errorCode);
         }
 
         /// <summary>
