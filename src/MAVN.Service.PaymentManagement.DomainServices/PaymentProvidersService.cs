@@ -123,6 +123,11 @@ namespace MAVN.Service.PaymentManagement.DomainServices
                     SuccessRedirectUrl = string.Format(_successUrlTemplate, paymentRequestIdStr),
                     FailRedirectUrl = string.Format(_failUrlTemplate, paymentRequestIdStr),
                 });
+            if (result.ErrorCode != CheckIntegrationErrorCode.Success)
+                return new PaymentGenerationResult
+                {
+                    ErrorCode = _mapper.Map<PaymentIntegrationCkeckErrorCodes>(result.ErrorCode)
+                };
 
             var now = DateTime.UtcNow;
             var paymentRequest = new PaymentRequest
@@ -141,6 +146,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
 
             return new PaymentGenerationResult
             {
+                ErrorCode = PaymentIntegrationCkeckErrorCodes.Success,
                 PaymentRequestId = paymentRequestId,
                 PaymentPageUrl = result.PaymentPageUrl,
             };
