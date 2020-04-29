@@ -30,20 +30,20 @@ namespace MAVN.Service.PaymentManagement.Client
         /// </summary>
         /// <param name="request">Check payment integration request</param>
         [Post("/api/payments/check")]
-        Task<CheckPaymentIntegrationErrorCode> CheckPaymentIntegrationAsync(PaymentIntegrationCheckRequest request);
+        Task<CheckPaymentIntegrationErrorCode> CheckPaymentIntegrationAsync([Body] PaymentIntegrationCheckRequest request);
 
         /// <summary>
         /// Generates a payment from integrated payment provider.
         /// </summary>
         /// <param name="request">Payment generation request</param>
         [Post("/api/payments")]
-        Task<PaymentGenerationResponse> GeneratePaymentAsync(PaymentGenerationRequest request);
+        Task<PaymentGenerationResponse> GeneratePaymentAsync([Body] PaymentGenerationRequest request);
 
         /// <summary>
         /// Validates payment status
         /// </summary>
         /// <param name="request">Validate payment request</param>
         [Post("/api/payments/validation")]
-        Task ValidatePaymentAsync(PaymentValidationRequest request);
+        Task ValidatePaymentAsync([Body] PaymentValidationRequest request);
     }
 }

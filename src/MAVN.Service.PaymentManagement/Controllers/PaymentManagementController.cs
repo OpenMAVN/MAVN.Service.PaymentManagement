@@ -62,7 +62,7 @@ namespace MAVN.Service.PaymentManagement.Controllers
         /// <param name="request">Check payment integration request</param>
         [HttpPost("check")]
         [ProducesResponseType(typeof(CheckPaymentIntegrationErrorCode), (int)HttpStatusCode.OK)]
-        public async Task<CheckPaymentIntegrationErrorCode> CheckPaymentIntegrationAsync(PaymentIntegrationCheckRequest request)
+        public async Task<CheckPaymentIntegrationErrorCode> CheckPaymentIntegrationAsync([FromBody] PaymentIntegrationCheckRequest request)
         {
             var errorCode = await _paymentProvidersService.CheckPaymentIntegrationAsync(request.PartnerId);
             return _mapper.Map<CheckPaymentIntegrationErrorCode>(errorCode);
@@ -74,7 +74,7 @@ namespace MAVN.Service.PaymentManagement.Controllers
         /// <param name="request">Payment generation request</param>
         [HttpPost]
         [ProducesResponseType(typeof(PaymentGenerationResponse), (int)HttpStatusCode.OK)]
-        public async Task<PaymentGenerationResponse> GeneratePaymentAsync(PaymentGenerationRequest request)
+        public async Task<PaymentGenerationResponse> GeneratePaymentAsync([FromBody] PaymentGenerationRequest request)
         {
             var requestData = _mapper.Map<GeneratePaymentData>(request);
 
@@ -89,7 +89,7 @@ namespace MAVN.Service.PaymentManagement.Controllers
         /// <param name="request">Validate payment request</param>
         [HttpPost("validation")]
         [ProducesResponseType(typeof(void), (int)HttpStatusCode.OK)]
-        public Task ValidatePaymentAsync(PaymentValidationRequest request)
+        public Task ValidatePaymentAsync([FromBody] PaymentValidationRequest request)
         {
             var requestData = _mapper.Map<PaymentValidationData>(request);
 
