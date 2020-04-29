@@ -5,7 +5,7 @@ namespace MAVN.Service.PaymentManagement.Domain
 {
     public class PaymentGenerationResult
     {
-        public PaymentIntegrationCkeckErrorCodes ErrorCode { get; set; }
+        public GeneratePaymentErrorCode ErrorCode { get; set; }
 
         public string PaymentPageUrl { get; set; }
 

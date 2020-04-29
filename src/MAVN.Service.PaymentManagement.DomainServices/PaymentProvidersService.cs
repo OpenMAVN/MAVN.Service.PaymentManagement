@@ -124,10 +124,13 @@ namespace MAVN.Service.PaymentManagement.DomainServices
                     FailRedirectUrl = string.Format(_failUrlTemplate, paymentRequestIdStr),
                 });
             if (result.ErrorCode != CheckIntegrationErrorCode.Success)
+            {
+                _log.Warning($"Received {result.ErrorCode} error code from plugin on payment generation");
                 return new PaymentGenerationResult
                 {
-                    ErrorCode = _mapper.Map<PaymentIntegrationCkeckErrorCodes>(result.ErrorCode)
+                    ErrorCode = GeneratePaymentErrorCode.InvalidPartnerConfiguration,
                 };
+            }
 
             var now = DateTime.UtcNow;
             var paymentRequest = new PaymentRequest
@@ -146,7 +149,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
 
             return new PaymentGenerationResult
             {
-                ErrorCode = PaymentIntegrationCkeckErrorCodes.Success,
+                ErrorCode = GeneratePaymentErrorCode.Success,
                 PaymentRequestId = paymentRequestId,
                 PaymentPageUrl = result.PaymentPageUrl,
             };

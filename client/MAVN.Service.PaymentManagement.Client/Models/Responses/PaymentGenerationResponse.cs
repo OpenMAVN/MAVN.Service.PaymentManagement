@@ -10,7 +10,7 @@ namespace MAVN.Service.PaymentManagement.Client.Models.Responses
     public class PaymentGenerationResponse
     {
         /// <summary>Error code</summary>
-        public CheckPaymentIntegrationErrorCode ErrorCode { get; set; }
+        public PaymentGenerationErrorCode ErrorCode { get; set; }
 
         /// <summary>Payment page url</summary>
         public string PaymentPageUrl { get; set; }
