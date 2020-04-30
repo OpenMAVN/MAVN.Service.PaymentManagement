@@ -10,10 +10,6 @@ namespace MAVN.Service.PaymentManagement.Validation
             RuleFor(x => x.PaymentRequestId)
                 .NotEmpty()
                 .WithMessage(x => $"{nameof(x.PaymentRequestId)} required");
-
-            RuleFor(x => x.PartnerId)
-                .Must(x => x != default)
-                .WithMessage(x => $"{nameof(x.PartnerId)} required");
         }
     }
 }
