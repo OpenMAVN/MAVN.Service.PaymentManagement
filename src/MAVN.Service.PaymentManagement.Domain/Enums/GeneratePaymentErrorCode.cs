@@ -3,7 +3,6 @@
     public enum GeneratePaymentErrorCode
     {
         None,
-        Success,
         InvalidPartnerConfiguration,
     }
 }

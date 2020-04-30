@@ -7,8 +7,6 @@
     {
         /// <summary>None</summary>
         None,
-        /// <summary>Success</summary>
-        Success,
         /// <summary>InvalidPartnerConfiguration</summary>
         InvalidPartnerConfiguration,
     }
