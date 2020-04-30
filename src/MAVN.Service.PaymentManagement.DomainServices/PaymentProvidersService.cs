@@ -157,26 +157,30 @@ namespace MAVN.Service.PaymentManagement.DomainServices
 
         public async Task ValidatePaymentAsync(PaymentValidationData data)
         {
-            var pluginUrl = ResolvePaymentProviderClientUrl(data.PartnerId);
-            var pluginClient = new PaymentIntegrationPluginClient(pluginUrl);
             var paymentRequest = await _paymentRequestsRepository.GetById(data.PaymentRequestId);
             if (paymentRequest == null)
                 return;
 
+            var pluginUrl = ResolvePaymentProviderClientUrl(paymentRequest.PartnerId);
+            var pluginClient = new PaymentIntegrationPluginClient(pluginUrl);
+
             var paymentStatus = await pluginClient.Api.CheckPaymentAsync(
                 new CheckPaymentRequest
                 {
-                    PartnerId = data.PartnerId,
+                    PartnerId = paymentRequest.PartnerId,
                     PaymentId = paymentRequest.PaymentId,
                 });
+
             if (paymentStatus.ErrorCode != CheckIntegrationErrorCode.None)
             {
                 _log.Warning($"Received an error during payment validation - {paymentStatus.ErrorCode}");
                 return;
             }
+
             var currentStatus = paymentStatus.PaymentStatus.ToString();
             if (paymentRequest.PaymentStatus == currentStatus)
                 return;
+
             if (paymentStatus.PaymentStatus == PaymentStatus.Success)
             {
                 _log.Warning($"Received {currentStatus} for a payment marked as succeeded");
@@ -184,7 +188,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
             }
 
             var paymentRequestIdStr = data.PaymentRequestId.ToString();
-            var partnerIdStr = data.PartnerId.ToString();
+            var partnerIdStr = paymentRequest.PartnerId.ToString();
             for (int i = 0; i < MaxAttemptsCount; ++i)
             {
                 var locked = await _db.LockTakeAsync(paymentRequestIdStr, partnerIdStr, _lockTimeout);
