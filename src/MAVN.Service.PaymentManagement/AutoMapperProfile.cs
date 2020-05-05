@@ -11,19 +11,19 @@ namespace MAVN.Service.PaymentManagement
     {
         public AutoMapperProfile()
         {
-            CreateMap<PaymentProviderRequirements, PaymentProviderProperties>()
+            CreateMap<PaymentProviderRequirements, PaymentProviderProperties>(MemberList.Source)
                 .ForMember(c => c.Properties, c => c.MapFrom(s => s.Requirements));
-            CreateMap<PaymentProviderRequirement, PaymentProviderProperty>();
-            CreateMap<PaymentIntegrationProperty, PaymentProviderRequirement>();
+            CreateMap<PaymentProviderRequirement, PaymentProviderProperty>(MemberList.Source);
+            CreateMap<PaymentIntegrationProperty, PaymentProviderRequirement>(MemberList.Source);
 
-            CreateMap<PaymentProviderSupportedCurrencies, PaymentIntegrationSupportedCurrencies>();
+            CreateMap<PaymentProviderSupportedCurrencies, PaymentIntegrationSupportedCurrencies>(MemberList.Source);
 
-            CreateMap<PaymentGenerationRequest, GeneratePaymentData>();
-            CreateMap<PaymentGenerationResult, PaymentGenerationResponse>();
+            CreateMap<PaymentGenerationRequest, GeneratePaymentData>(MemberList.Source);
+            CreateMap<PaymentGenerationResult, PaymentGenerationResponse>(MemberList.Source);
 
-            CreateMap<PaymentValidationRequest, PaymentValidationData>();
+            CreateMap<PaymentValidationRequest, PaymentValidationData>(MemberList.Source);
 
-            CreateMap<IPaymentRequest, PaymentRequestEntity>();
+            CreateMap<IPaymentRequest, PaymentRequestEntity>(MemberList.Source);
         }
     }
 }
