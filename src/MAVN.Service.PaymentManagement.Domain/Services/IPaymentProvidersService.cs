@@ -15,6 +15,6 @@ namespace MAVN.Service.PaymentManagement.Domain.Services
 
         Task<PaymentGenerationResult> GeneratePaymentAsync(GeneratePaymentData data);
 
-        Task ValidatePaymentAsync(PaymentValidationData data);
+        Task<string> ValidatePaymentAsync(PaymentValidationData data);
     }
 }

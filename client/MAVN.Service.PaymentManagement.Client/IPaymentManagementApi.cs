@@ -44,6 +44,6 @@ namespace MAVN.Service.PaymentManagement.Client
         /// </summary>
         /// <param name="request">Validate payment request</param>
         [Post("/api/payments/validation")]
-        Task ValidatePaymentAsync([Body] PaymentValidationRequest request);
+        Task<string> ValidatePaymentAsync([Body] PaymentValidationRequest request);
     }
 }

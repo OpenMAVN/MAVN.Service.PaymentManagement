@@ -155,11 +155,11 @@ namespace MAVN.Service.PaymentManagement.DomainServices
             };
         }
 
-        public async Task ValidatePaymentAsync(PaymentValidationData data)
+        public async Task<string> ValidatePaymentAsync(PaymentValidationData data)
         {
             var paymentRequest = await _paymentRequestsRepository.GetById(data.PaymentRequestId);
             if (paymentRequest == null)
-                return;
+                return null;
 
             var pluginUrl = ResolvePaymentProviderClientUrl(paymentRequest.PartnerId);
             var pluginClient = new PaymentIntegrationPluginClient(pluginUrl);
@@ -174,17 +174,17 @@ namespace MAVN.Service.PaymentManagement.DomainServices
             if (paymentStatus.ErrorCode != CheckIntegrationErrorCode.None)
             {
                 _log.Warning($"Received an error during payment validation - {paymentStatus.ErrorCode}");
-                return;
+                return paymentStatus.ErrorCode.ToString();
             }
 
-            var currentStatus = paymentStatus.PaymentStatus.ToString();
-            if (paymentRequest.PaymentStatus == currentStatus)
-                return;
+            var newStatus = paymentStatus.PaymentStatus.ToString();
+            if (paymentRequest.PaymentStatus == newStatus)
+                return newStatus;
 
-            if (paymentStatus.PaymentStatus == PaymentStatus.Success)
+            if (paymentRequest.PaymentStatus == PaymentStatus.Success.ToString())
             {
-                _log.Warning($"Received {currentStatus} for a payment marked as succeeded");
-                return;
+                _log.Warning($"Received {newStatus} for a payment marked as succeeded");
+                return newStatus;
             }
 
             var paymentRequestIdStr = data.PaymentRequestId.ToString();
@@ -201,16 +201,16 @@ namespace MAVN.Service.PaymentManagement.DomainServices
 
                 var now = DateTime.UtcNow;
                 var previousStatus = paymentRequest.PaymentStatus;
-                paymentRequest.PaymentStatus = currentStatus;
+                paymentRequest.PaymentStatus = newStatus;
                 paymentRequest.ModifiedAt = now;
                 await _paymentRequestsRepository.UpdateAsync(paymentRequest);
 
-                _log.Info($"Updated payment status to {currentStatus} from {previousStatus}", paymentRequestIdStr);
+                _log.Info($"Updated payment status to {newStatus} from {previousStatus}", paymentRequestIdStr);
 
                 await _db.LockReleaseAsync(paymentRequestIdStr, partnerIdStr);
 
                 if (paymentStatus.PaymentStatus != PaymentStatus.Success)
-                    return;
+                    return newStatus;
 
                 var evt = new PaymentCompletedEvent
                 {
@@ -225,7 +225,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
 
                 _log.Info("Publiched payment completed event", evt);
 
-                return;
+                return newStatus;
             }
 
             throw new InvalidOperationException($"Can't lock for payment request {paymentRequestIdStr}");

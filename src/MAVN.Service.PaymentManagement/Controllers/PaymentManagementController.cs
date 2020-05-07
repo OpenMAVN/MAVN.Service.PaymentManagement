@@ -88,8 +88,8 @@ namespace MAVN.Service.PaymentManagement.Controllers
         /// </summary>
         /// <param name="request">Validate payment request</param>
         [HttpPost("validation")]
-        [ProducesResponseType(typeof(void), (int)HttpStatusCode.OK)]
-        public Task ValidatePaymentAsync([FromBody] PaymentValidationRequest request)
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        public Task<string> ValidatePaymentAsync([FromBody] PaymentValidationRequest request)
         {
             var requestData = _mapper.Map<PaymentValidationData>(request);
 
