@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Common;
 using Common.Log;
 using Lykke.Common.Log;
 using Lykke.RabbitMqBroker.Publisher;
@@ -158,8 +159,15 @@ namespace MAVN.Service.PaymentManagement.DomainServices
         public async Task<string> ValidatePaymentAsync(PaymentValidationData data)
         {
             var paymentRequest = await _paymentRequestsRepository.GetById(data.PaymentRequestId);
+
             if (paymentRequest == null)
                 return null;
+
+            if (paymentRequest.PaymentStatus == PaymentStatus.Success.ToString())
+            {
+                _log.Warning($"Payment marked as successful ({paymentRequest.PaymentStatus}) on {paymentRequest.ModifiedAt.ToJson()}");
+                return paymentRequest.PaymentStatus;
+            }
 
             var pluginUrl = ResolvePaymentProviderClientUrl(paymentRequest.PartnerId);
             var pluginClient = new PaymentIntegrationPluginClient(pluginUrl);
@@ -178,17 +186,16 @@ namespace MAVN.Service.PaymentManagement.DomainServices
             }
 
             var newStatus = paymentStatus.PaymentStatus.ToString();
-            if (paymentRequest.PaymentStatus == newStatus)
-                return newStatus;
 
-            if (paymentRequest.PaymentStatus == PaymentStatus.Success.ToString())
+            if (paymentRequest.PaymentStatus == newStatus)
             {
-                _log.Warning($"Received {newStatus} for a payment marked as succeeded");
+                _log.Warning($"Status {newStatus} hasn't changed since {paymentRequest.ModifiedAt.ToJson()}");
                 return newStatus;
             }
 
             var paymentRequestIdStr = data.PaymentRequestId.ToString();
             var partnerIdStr = paymentRequest.PartnerId.ToString();
+
             for (int i = 0; i < MaxAttemptsCount; ++i)
             {
                 var locked = await _db.LockTakeAsync(GetRedisKey(paymentRequestIdStr), partnerIdStr, _lockTimeout);
