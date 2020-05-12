@@ -199,10 +199,11 @@ namespace MAVN.Service.PaymentManagement.DomainServices
             for (int i = 0; i < MaxAttemptsCount; ++i)
             {
                 var locked = await _db.LockTakeAsync(GetRedisKey(paymentRequestIdStr), partnerIdStr, _lockTimeout);
-                if (locked)
+
+                if (!locked)
                 {
                     _log.Info("Couldn't lock for payment request", paymentRequestIdStr);
-                    await Task.Delay(_lockTimeout);
+                    await Task.Delay(_lockTimeout.Add(TimeSpan.FromMilliseconds(100)));
                     continue;
                 }
 
