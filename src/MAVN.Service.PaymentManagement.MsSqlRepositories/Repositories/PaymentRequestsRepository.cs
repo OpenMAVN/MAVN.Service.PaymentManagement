@@ -5,6 +5,7 @@ using Lykke.Common.MsSql;
 using MAVN.Service.PaymentManagement.Domain;
 using MAVN.Service.PaymentManagement.Domain.Repositories;
 using MAVN.Service.PaymentManagement.MsSqlRepositories.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace MAVN.Service.PaymentManagement.MsSqlRepositories.Repositories
 {
@@ -37,7 +38,7 @@ namespace MAVN.Service.PaymentManagement.MsSqlRepositories.Repositories
         {
             using (var context = _contextFactory.CreateDataContext())
             {
-                var result = await context.PaymentRequests.FindAsync(paymentRequestId);
+                var result = await context.PaymentRequests.AsNoTracking().FirstOrDefaultAsync(_ => _.Id == paymentRequestId);
                 return result;
             }
         }

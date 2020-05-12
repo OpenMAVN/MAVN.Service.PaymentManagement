@@ -191,7 +191,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
             var partnerIdStr = paymentRequest.PartnerId.ToString();
             for (int i = 0; i < MaxAttemptsCount; ++i)
             {
-                var locked = await _db.LockTakeAsync(paymentRequestIdStr, partnerIdStr, _lockTimeout);
+                var locked = await _db.LockTakeAsync(GetRedisKey(paymentRequestIdStr), partnerIdStr, _lockTimeout);
                 if (locked)
                 {
                     _log.Info("Couldn't lock for payment request", paymentRequestIdStr);
@@ -207,7 +207,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
 
                 _log.Info($"Updated payment status to {newStatus} from {previousStatus}", paymentRequestIdStr);
 
-                await _db.LockReleaseAsync(paymentRequestIdStr, partnerIdStr);
+                await _db.LockReleaseAsync(GetRedisKey(paymentRequestIdStr), partnerIdStr);
 
                 if (paymentStatus.PaymentStatus != PaymentStatus.Success)
                     return newStatus;
@@ -229,6 +229,11 @@ namespace MAVN.Service.PaymentManagement.DomainServices
             }
 
             throw new InvalidOperationException($"Can't lock for payment request {paymentRequestIdStr}");
+        }
+
+        private string GetRedisKey(string paymentRequestId)
+        {
+            return $"{nameof(PaymentManagement)}:{nameof(paymentRequestId)}:{paymentRequestId}";
         }
 
         private string ResolvePaymentProviderClientUrl(Guid partnerId)
