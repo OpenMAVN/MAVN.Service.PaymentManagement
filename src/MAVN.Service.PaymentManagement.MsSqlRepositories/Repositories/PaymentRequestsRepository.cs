@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using AutoMapper;
-using Lykke.Common.MsSql;
+using MAVN.Common.MsSql;
 using MAVN.Service.PaymentManagement.Domain;
 using MAVN.Service.PaymentManagement.Domain.Repositories;
 using MAVN.Service.PaymentManagement.MsSqlRepositories.Entities;
