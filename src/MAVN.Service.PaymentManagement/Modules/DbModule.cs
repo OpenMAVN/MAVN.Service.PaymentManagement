@@ -1,6 +1,6 @@
-﻿using Autofac;
+using Autofac;
 using JetBrains.Annotations;
-using Lykke.Common.MsSql;
+using MAVN.Common.MsSql;
 using Lykke.SettingsReader;
 using MAVN.Service.PaymentManagement.Domain.Repositories;
 using MAVN.Service.PaymentManagement.MsSqlRepositories;
