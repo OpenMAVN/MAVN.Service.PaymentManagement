@@ -11,7 +11,8 @@ namespace MAVN.Service.PaymentManagement.Domain.Services
 
         Task<List<PaymentProviderSupportedCurrencies>> GetSupportedCurrenciesAsync(string paymentProvider, Guid? partnerId);
 
-        Task<PaymentIntegrationCkeckErrorCodes> CheckPaymentIntegrationAsync(Guid partnerId);
+        Task<PaymentIntegrationCheckErrorCodes> CheckPaymentIntegrationAsync(Guid partnerId,
+            string paymentIntegrationProperties, string paymentIntegrationProvider);
 
         Task<PaymentGenerationResult> GeneratePaymentAsync(GeneratePaymentData data);
 

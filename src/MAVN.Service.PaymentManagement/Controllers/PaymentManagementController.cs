@@ -64,7 +64,7 @@ namespace MAVN.Service.PaymentManagement.Controllers
         [ProducesResponseType(typeof(CheckPaymentIntegrationErrorCode), (int)HttpStatusCode.OK)]
         public async Task<CheckPaymentIntegrationErrorCode> CheckPaymentIntegrationAsync([FromBody] PaymentIntegrationCheckRequest request)
         {
-            var errorCode = await _paymentProvidersService.CheckPaymentIntegrationAsync(request.PartnerId);
+            var errorCode = await _paymentProvidersService.CheckPaymentIntegrationAsync(request.PartnerId, request.PaymentIntegrationProperties, request.PaymentIntegrationProvider);
             return _mapper.Map<CheckPaymentIntegrationErrorCode>(errorCode);
         }
 

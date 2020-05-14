@@ -13,5 +13,7 @@
         PartnerConfigurationNotFound,
         /// <summary>PartnerConfigurationPropertyIsMissing</summary>
         PartnerConfigurationPropertyIsMissing,
+        /// <summary>PaymentIntegrationProviderIsMissing</summary>
+        PaymentIntegrationProviderIsMissing,
     }
 }
