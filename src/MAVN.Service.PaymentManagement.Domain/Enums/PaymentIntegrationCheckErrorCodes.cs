@@ -1,10 +1,11 @@
 ﻿namespace MAVN.Service.PaymentManagement.Domain.Enums
 {
-    public enum PaymentIntegrationCkeckErrorCodes
+    public enum PaymentIntegrationCheckErrorCodes
     {
         None,
         Fail,
         PartnerConfigurationNotFound,
         PartnerConfigurationPropertyIsMissing,
+        PaymentIntegrationProviderIsMissing,
     }
 }

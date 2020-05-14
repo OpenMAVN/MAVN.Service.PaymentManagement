@@ -82,7 +82,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
             if (!string.IsNullOrWhiteSpace(paymentProvider) && _pluginsDict.TryGetValue(paymentProvider, out var url))
                 pluginUrls.Add(url);
             else if (partnerId.HasValue)
-                pluginUrls.Add(ResolvePaymentProviderClientUrl(partnerId.Value));
+                pluginUrls.Add(ResolvePaymentProviderClientUrlByPartner(partnerId.Value));
             else
                 pluginUrls.AddRange(_pluginsDict.Values);
             foreach (var pluginUrl in pluginUrls)
@@ -99,18 +99,24 @@ namespace MAVN.Service.PaymentManagement.DomainServices
             return result;
         }
 
-        public async Task<PaymentIntegrationCkeckErrorCodes> CheckPaymentIntegrationAsync(Guid partnerId)
+        public async Task<PaymentIntegrationCheckErrorCodes> CheckPaymentIntegrationAsync(Guid partnerId, string paymentIntegrationProperties, string paymentIntegrationProvider)
         {
-            var pluginUrl = ResolvePaymentProviderClientUrl(partnerId);
+            var pluginUrl = string.IsNullOrEmpty(paymentIntegrationProvider)
+                ? ResolvePaymentProviderClientUrlByPartner(partnerId)
+                : ResolvePaymentProviderClientUrlByName(paymentIntegrationProvider);
+
+            if (string.IsNullOrEmpty(pluginUrl))
+                return PaymentIntegrationCheckErrorCodes.PaymentIntegrationProviderIsMissing;
+            
             var pluginClient = new PaymentIntegrationPluginClient(pluginUrl);
             var errorCode = await pluginClient.Api.CheckPaymentIntegrationAsync(
-                new CheckPaymentIntegrationRequest { PartnerId  = partnerId });
-            return _mapper.Map<PaymentIntegrationCkeckErrorCodes>(errorCode);
+                new CheckPaymentIntegrationRequest { PartnerId = partnerId, PaymentIntegrationProperties = paymentIntegrationProperties});
+            return _mapper.Map<PaymentIntegrationCheckErrorCodes>(errorCode);
         }
 
         public async Task<PaymentGenerationResult> GeneratePaymentAsync(GeneratePaymentData data)
         {
-            var pluginUrl = ResolvePaymentProviderClientUrl(data.PartnerId);
+            var pluginUrl = ResolvePaymentProviderClientUrlByPartner(data.PartnerId);
             var pluginClient = new PaymentIntegrationPluginClient(pluginUrl);
             var paymentRequestId = Guid.NewGuid();
             var paymentRequestIdStr = paymentRequestId.ToString();
@@ -169,7 +175,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
                 return paymentRequest.PaymentStatus;
             }
 
-            var pluginUrl = ResolvePaymentProviderClientUrl(paymentRequest.PartnerId);
+            var pluginUrl = ResolvePaymentProviderClientUrlByPartner(paymentRequest.PartnerId);
             var pluginClient = new PaymentIntegrationPluginClient(pluginUrl);
 
             var paymentStatus = await pluginClient.Api.CheckPaymentAsync(
@@ -244,12 +250,17 @@ namespace MAVN.Service.PaymentManagement.DomainServices
             return $"{nameof(PaymentManagement)}:{nameof(paymentRequestId)}:{paymentRequestId}";
         }
 
-        private string ResolvePaymentProviderClientUrl(Guid partnerId)
+        private string ResolvePaymentProviderClientUrlByPartner(Guid partnerId)
         {
             if (_pluginsDict.TryGetValue(_defaultProvider, out var url))
                 return url;
 
             return _pluginsDict.First().Value;
+        }
+
+        private string ResolvePaymentProviderClientUrlByName(string paymentIntegrationProvider)
+        {
+            return _pluginsDict.TryGetValue(paymentIntegrationProvider, out var url) ? url : null;
         }
     }
 }
