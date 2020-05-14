@@ -14,7 +14,8 @@ namespace MAVN.Service.PaymentIntegrationPlugin.Client.Validation
         public CheckPaymentIntegrationRequestValidator()
         {
             RuleFor(x => x.PartnerId)
-                .Must(x => x != default)
+                .Must((model, value) =>
+                    model != null && string.IsNullOrEmpty(model.PaymentIntegrationProperties) ? value != default : true)
                 .WithMessage(x => $"{nameof(x.PartnerId)} required");
         }
     }
