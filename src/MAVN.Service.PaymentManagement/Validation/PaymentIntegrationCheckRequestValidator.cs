@@ -8,7 +8,8 @@ namespace MAVN.Service.PaymentManagement.Validation
         public PaymentIntegrationCheckRequestValidator()
         {
             RuleFor(x => x.PartnerId)
-                .Must(x => x != default)
+                .Must((model, value) =>
+                    model != null && string.IsNullOrEmpty(model.PaymentIntegrationProvider) ? value != default : true)
                 .WithMessage(x => $"{nameof(x.PartnerId)} required");
         }
     }
