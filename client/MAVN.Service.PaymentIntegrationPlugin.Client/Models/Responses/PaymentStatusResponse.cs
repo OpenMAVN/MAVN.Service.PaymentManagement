@@ -12,6 +12,6 @@
         public PaymentStatus PaymentStatus { get; set; }
 
         /// <summary>Payment url</summary>
-        public PaymentStatus PaymentUrl { get; set; }
+        public string PaymentUrl { get; set; }
     }
 }
