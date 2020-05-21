@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using AutoMapper;
 using MAVN.Common.MsSql;
@@ -39,6 +39,15 @@ namespace MAVN.Service.PaymentManagement.MsSqlRepositories.Repositories
             using (var context = _contextFactory.CreateDataContext())
             {
                 var result = await context.PaymentRequests.AsNoTracking().FirstOrDefaultAsync(_ => _.Id == paymentRequestId);
+                return result;
+            }
+        }
+
+        public async Task<IPaymentRequest> GetByExternalId(string externalId)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var result = await context.PaymentRequests.AsNoTracking().FirstOrDefaultAsync(_ => _.ExternalPaymentEntityId == externalId);
                 return result;
             }
         }

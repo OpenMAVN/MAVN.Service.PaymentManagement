@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -94,6 +95,21 @@ namespace MAVN.Service.PaymentManagement.Controllers
             var requestData = _mapper.Map<PaymentValidationData>(request);
 
             return _paymentProvidersService.ValidatePaymentAsync(requestData);
+        }
+
+        /// <summary>
+        /// Get payment info by external id
+        /// </summary>
+        [HttpGet("info")]
+        [ProducesResponseType(typeof(PaymentInfoResponse), (int)HttpStatusCode.OK)]
+        public async Task<PaymentInfoResponse> GetPaymentInfoAsync([FromQuery] GetPaymentInfoRequest request)
+        {
+            var paymentUrl = await _paymentProvidersService.GetPaymentUrlByExternalPaymentId(request.ExternalPaymentEntityId);
+
+            return new PaymentInfoResponse
+            {
+                PaymentUrl = paymentUrl,
+            };
         }
     }
 }

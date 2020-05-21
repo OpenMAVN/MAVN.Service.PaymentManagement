@@ -20,5 +20,8 @@ namespace MAVN.Service.PaymentManagement.Client.Models.Requests
 
         /// <summary>Customer id</summary>
         public Guid CustomerId { get; set; }
+
+        /// <summary>used for external payment entity identification</summary>
+        public string ExternalPaymentEntityId { get; set; }
     }
 }

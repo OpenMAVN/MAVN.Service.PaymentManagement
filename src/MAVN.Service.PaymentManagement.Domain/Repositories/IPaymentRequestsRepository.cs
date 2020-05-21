@@ -10,5 +10,7 @@ namespace MAVN.Service.PaymentManagement.Domain.Repositories
         Task CreateAsync(IPaymentRequest paymentRequest);
 
         Task UpdateAsync(IPaymentRequest paymentRequest);
+
+        Task<IPaymentRequest> GetByExternalId(string externalId);
     }
 }

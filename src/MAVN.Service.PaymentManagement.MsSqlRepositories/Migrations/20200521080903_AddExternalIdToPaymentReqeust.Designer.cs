@@ -4,14 +4,16 @@ using MAVN.Service.PaymentManagement.MsSqlRepositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MAVN.Service.PaymentManagement.MsSqlRepositories.Migrations
 {
     [DbContext(typeof(PaymentManagementContext))]
-    partial class PaymentManagementContextModelSnapshot : ModelSnapshot
+    [Migration("20200521080903_AddExternalIdToPaymentReqeust")]
+    partial class AddExternalIdToPaymentReqeust
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,7 +42,7 @@ namespace MAVN.Service.PaymentManagement.MsSqlRepositories.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ExternalPaymentEntityId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ModifiedAt")
                         .HasColumnType("datetime2");
@@ -61,10 +63,6 @@ namespace MAVN.Service.PaymentManagement.MsSqlRepositories.Migrations
                     b.HasIndex("Currency");
 
                     b.HasIndex("CustomerId");
-
-                    b.HasIndex("ExternalPaymentEntityId")
-                        .IsUnique()
-                        .HasFilter("[ExternalPaymentEntityId] IS NOT NULL");
 
                     b.HasIndex("PartnerId");
 
