@@ -45,5 +45,11 @@ namespace MAVN.Service.PaymentManagement.Client
         /// <param name="request">Validate payment request</param>
         [Post("/api/payments/validation")]
         Task<string> ValidatePaymentAsync([Body] PaymentValidationRequest request);
+
+        /// <summary>
+        /// Get payment info by external id
+        /// </summary>
+        [Get("/api/payments/{externalPaymentEntityId}")]
+        Task<PaymentInfoResponse> GetPaymentInfoAsync(string externalPaymentEntityId);
     }
 }

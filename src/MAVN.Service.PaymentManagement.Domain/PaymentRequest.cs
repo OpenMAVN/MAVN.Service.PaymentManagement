@@ -13,5 +13,6 @@ namespace MAVN.Service.PaymentManagement.Domain
         public string PaymentStatus { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime ModifiedAt { get; set; }
+        public string ExternalPaymentEntityId { get; set; }
     }
 }

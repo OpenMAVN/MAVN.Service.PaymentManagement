@@ -129,6 +129,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
                     Currency = data.Currency,
                     SuccessRedirectUrl = string.Format(_successUrlTemplate, paymentRequestIdStr),
                     FailRedirectUrl = string.Format(_failUrlTemplate, paymentRequestIdStr),
+                    
                 });
             if (result.ErrorCode != CheckIntegrationErrorCode.None)
             {
@@ -151,6 +152,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
                 PaymentStatus = PaymentStatus.Pending.ToString(),
                 CreatedAt = now,
                 ModifiedAt = now,
+                ExternalPaymentEntityId = data.ExternalPaymentEntityId,
             };
             await _paymentRequestsRepository.CreateAsync(paymentRequest);
 
@@ -243,6 +245,29 @@ namespace MAVN.Service.PaymentManagement.DomainServices
             }
 
             throw new InvalidOperationException($"Can't lock for payment request {paymentRequestIdStr}");
+        }
+
+        public async Task<string> GetPaymentUrlByExternalPaymentId(string externalPaymentId)
+        {
+            if (string.IsNullOrEmpty(externalPaymentId))
+                return null;
+
+            var paymentRequest = await _paymentRequestsRepository.GetByExternalId(externalPaymentId);
+
+            if (paymentRequest == null)
+                return null;
+
+            var pluginUrl = ResolvePaymentProviderClientUrlByPartner(paymentRequest.PartnerId);
+            var pluginClient = new PaymentIntegrationPluginClient(pluginUrl);
+
+            var paymentStatusResponse = await pluginClient.Api.CheckPaymentAsync(
+                new CheckPaymentRequest
+                {
+                    PartnerId = paymentRequest.PartnerId,
+                    PaymentId = paymentRequest.PaymentId,
+                });
+
+            return paymentStatusResponse.PaymentUrl;
         }
 
         private string GetRedisKey(string paymentRequestId)

@@ -11,5 +11,7 @@ namespace MAVN.Service.PaymentManagement.Domain
         public Guid PartnerId { get; set; }
 
         public Guid CustomerId { get; set; }
+
+        public string ExternalPaymentEntityId { get; set; }
     }
 }

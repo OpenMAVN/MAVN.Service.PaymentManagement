@@ -33,5 +33,7 @@ namespace MAVN.Service.PaymentManagement.MsSqlRepositories.Entities
         public DateTime CreatedAt { get; set; }
 
         public DateTime ModifiedAt { get; set; }
+
+        public string ExternalPaymentEntityId { get; set; }
     }
 }
