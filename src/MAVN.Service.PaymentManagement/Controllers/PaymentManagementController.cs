@@ -49,7 +49,7 @@ namespace MAVN.Service.PaymentManagement.Controllers
         public async Task<PaymentIntegrationsSupportedCurrenciesResponse> GetPaymentIntegrationsSupportedCurrenciesAsync(
             [FromQuery] PaymentIntegrationsSupportedCurrenciesRequest request)
         {
-            var supportedCurrencies = await _paymentProvidersService.GetSupportedCurrenciesAsync(request.PaymentProvider, request.PartnerId);
+            var supportedCurrencies = await _paymentProvidersService.GetSupportedCurrenciesAsync(request.PartnerId);
 
             return new PaymentIntegrationsSupportedCurrenciesResponse
             {

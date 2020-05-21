@@ -9,7 +9,7 @@ namespace MAVN.Service.PaymentManagement.Domain.Services
     {
         Task<List<PaymentProviderRequirements>> GetPaymentProvidersRequirementsAsync();
 
-        Task<List<PaymentProviderSupportedCurrencies>> GetSupportedCurrenciesAsync(string paymentProvider, Guid? partnerId);
+        Task<List<PaymentProviderSupportedCurrencies>> GetSupportedCurrenciesAsync(Guid? partnerId);
 
         Task<PaymentIntegrationCheckErrorCodes> CheckPaymentIntegrationAsync(Guid partnerId,
             string paymentIntegrationProperties, string paymentIntegrationProvider);
