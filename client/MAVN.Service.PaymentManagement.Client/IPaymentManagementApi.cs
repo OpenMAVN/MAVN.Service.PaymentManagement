@@ -49,7 +49,7 @@ namespace MAVN.Service.PaymentManagement.Client
         /// <summary>
         /// Get payment info by external id
         /// </summary>
-        [Get("/api/payments/{externalPaymentEntityId}")]
-        Task<PaymentInfoResponse> GetPaymentInfoAsync(string externalPaymentEntityId);
+        [Get("/api/payments/info")]
+        Task<PaymentInfoResponse> GetPaymentInfoAsync([Query] GetPaymentInfoRequest request);
     }
 }

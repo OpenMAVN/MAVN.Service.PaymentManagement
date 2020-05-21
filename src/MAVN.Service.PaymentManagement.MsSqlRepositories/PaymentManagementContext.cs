@@ -1,4 +1,4 @@
-using System.Data.Common;
+﻿using System.Data.Common;
 using JetBrains.Annotations;
 using MAVN.Common.MsSql;
 using MAVN.Service.PaymentManagement.MsSqlRepositories.Entities;
@@ -45,6 +45,10 @@ namespace MAVN.Service.PaymentManagement.MsSqlRepositories
 
             modelBuilder.Entity<PaymentRequestEntity>()
                 .HasIndex(p => p.Currency);
+
+            modelBuilder.Entity<PaymentRequestEntity>()
+                .HasIndex(p => p.ExternalPaymentEntityId)
+                .IsUnique();
         }
     }
 }

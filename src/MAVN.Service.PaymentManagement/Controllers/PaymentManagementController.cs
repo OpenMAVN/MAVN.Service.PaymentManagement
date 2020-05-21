@@ -100,11 +100,11 @@ namespace MAVN.Service.PaymentManagement.Controllers
         /// <summary>
         /// Get payment info by external id
         /// </summary>
-        [HttpGet("{externalPaymentEntityId}")]
+        [HttpGet("info")]
         [ProducesResponseType(typeof(PaymentInfoResponse), (int)HttpStatusCode.OK)]
-        public async Task<PaymentInfoResponse> GetPaymentInfoAsync([FromRoute][Required] string externalPaymentEntityId)
+        public async Task<PaymentInfoResponse> GetPaymentInfoAsync([FromQuery] GetPaymentInfoRequest request)
         {
-            var paymentUrl = await _paymentProvidersService.GetPaymentUrlByExternalPaymentId(externalPaymentEntityId);
+            var paymentUrl = await _paymentProvidersService.GetPaymentUrlByExternalPaymentId(request.ExternalPaymentEntityId);
 
             return new PaymentInfoResponse
             {
