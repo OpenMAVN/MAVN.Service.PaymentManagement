@@ -75,23 +75,23 @@ namespace MAVN.Service.PaymentManagement.DomainServices
             return result;
         }
 
-        public async Task<List<PaymentProviderSupportedCurrencies>> GetSupportedCurrenciesAsync(string paymentProvider, Guid? partnerId)
+        public async Task<List<PaymentProviderSupportedCurrencies>> GetSupportedCurrenciesAsync(Guid? partnerId)
         {
             var result = new List<PaymentProviderSupportedCurrencies>();
-            var pluginUrls = new List<string>();
-            if (!string.IsNullOrWhiteSpace(paymentProvider) && _pluginsDict.TryGetValue(paymentProvider, out var url))
-                pluginUrls.Add(url);
-            else if (partnerId.HasValue)
-                pluginUrls.Add(ResolvePaymentProviderClientUrlByPartner(partnerId.Value));
+            var pluginProvidersAndUrls = new List<(string provider, string url)>();
+
+            if (partnerId.HasValue)
+                pluginProvidersAndUrls.Add(ResolvePaymentProviderClientUrlByPartner(partnerId.Value));
             else
-                pluginUrls.AddRange(_pluginsDict.Values);
-            foreach (var pluginUrl in pluginUrls)
+                pluginProvidersAndUrls.AddRange(_pluginsDict.Select(x => (x.Key, x.Value)));
+
+            foreach (var pluginProviderAndUrl in pluginProvidersAndUrls)
             {
-                var pluginClient = new PaymentIntegrationPluginClient(pluginUrl);
+                var pluginClient = new PaymentIntegrationPluginClient(pluginProviderAndUrl.url);
                 var supportedCurrencies = await pluginClient.Api.GetPaymentIntegrationSupportedCurrenciesAsync();
                 result.Add(new PaymentProviderSupportedCurrencies
                 {
-                    PaymentProvider = paymentProvider,
+                    PaymentProvider = pluginProviderAndUrl.provider,
                     SupportedCurrencies = supportedCurrencies,
                 });
             }
@@ -102,21 +102,21 @@ namespace MAVN.Service.PaymentManagement.DomainServices
         public async Task<PaymentIntegrationCheckErrorCodes> CheckPaymentIntegrationAsync(Guid partnerId, string paymentIntegrationProperties, string paymentIntegrationProvider)
         {
             var pluginUrl = string.IsNullOrEmpty(paymentIntegrationProvider)
-                ? ResolvePaymentProviderClientUrlByPartner(partnerId)
+                ? ResolvePaymentProviderClientUrlByPartner(partnerId).url
                 : ResolvePaymentProviderClientUrlByName(paymentIntegrationProvider);
 
             if (string.IsNullOrEmpty(pluginUrl))
                 return PaymentIntegrationCheckErrorCodes.PaymentIntegrationProviderIsMissing;
-            
+
             var pluginClient = new PaymentIntegrationPluginClient(pluginUrl);
             var errorCode = await pluginClient.Api.CheckPaymentIntegrationAsync(
-                new CheckPaymentIntegrationRequest { PartnerId = partnerId, PaymentIntegrationProperties = paymentIntegrationProperties});
+                new CheckPaymentIntegrationRequest { PartnerId = partnerId, PaymentIntegrationProperties = paymentIntegrationProperties });
             return _mapper.Map<PaymentIntegrationCheckErrorCodes>(errorCode);
         }
 
         public async Task<PaymentGenerationResult> GeneratePaymentAsync(GeneratePaymentData data)
         {
-            var pluginUrl = ResolvePaymentProviderClientUrlByPartner(data.PartnerId);
+            var (provider, pluginUrl) = ResolvePaymentProviderClientUrlByPartner(data.PartnerId);
             var pluginClient = new PaymentIntegrationPluginClient(pluginUrl);
             var paymentRequestId = Guid.NewGuid();
             var paymentRequestIdStr = paymentRequestId.ToString();
@@ -129,7 +129,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
                     Currency = data.Currency,
                     SuccessRedirectUrl = string.Format(_successUrlTemplate, paymentRequestIdStr),
                     FailRedirectUrl = string.Format(_failUrlTemplate, paymentRequestIdStr),
-                    
+
                 });
             if (result.ErrorCode != CheckIntegrationErrorCode.None)
             {
@@ -177,7 +177,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
                 return paymentRequest.PaymentStatus;
             }
 
-            var pluginUrl = ResolvePaymentProviderClientUrlByPartner(paymentRequest.PartnerId);
+            var (provider, pluginUrl) = ResolvePaymentProviderClientUrlByPartner(paymentRequest.PartnerId);
             var pluginClient = new PaymentIntegrationPluginClient(pluginUrl);
 
             var paymentStatus = await pluginClient.Api.CheckPaymentAsync(
@@ -257,7 +257,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
             if (paymentRequest == null)
                 return null;
 
-            var pluginUrl = ResolvePaymentProviderClientUrlByPartner(paymentRequest.PartnerId);
+            var (provider, pluginUrl) = ResolvePaymentProviderClientUrlByPartner(paymentRequest.PartnerId);
             var pluginClient = new PaymentIntegrationPluginClient(pluginUrl);
 
             var paymentStatusResponse = await pluginClient.Api.CheckPaymentAsync(
@@ -275,12 +275,13 @@ namespace MAVN.Service.PaymentManagement.DomainServices
             return $"{nameof(PaymentManagement)}:{nameof(paymentRequestId)}:{paymentRequestId}";
         }
 
-        private string ResolvePaymentProviderClientUrlByPartner(Guid partnerId)
+        private (string provider, string url) ResolvePaymentProviderClientUrlByPartner(Guid partnerId)
         {
             if (_pluginsDict.TryGetValue(_defaultProvider, out var url))
-                return url;
+                return (_defaultProvider, url);
 
-            return _pluginsDict.First().Value;
+            var (provider, pluginUrl) = _pluginsDict.First();
+            return (provider, pluginUrl);
         }
 
         private string ResolvePaymentProviderClientUrlByName(string paymentIntegrationProvider)
