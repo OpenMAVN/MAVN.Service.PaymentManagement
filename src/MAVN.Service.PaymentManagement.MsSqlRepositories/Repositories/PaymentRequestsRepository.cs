@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using MAVN.Common.MsSql;
 using MAVN.Service.PaymentManagement.Domain;
+using MAVN.Service.PaymentManagement.Domain.Enums;
 using MAVN.Service.PaymentManagement.Domain.Repositories;
 using MAVN.Service.PaymentManagement.MsSqlRepositories.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -47,8 +49,26 @@ namespace MAVN.Service.PaymentManagement.MsSqlRepositories.Repositories
         {
             using (var context = _contextFactory.CreateDataContext())
             {
-                var result = await context.PaymentRequests.AsNoTracking().FirstOrDefaultAsync(_ => _.ExternalPaymentEntityId == externalId);
-                return result;
+                var paymentRequest = await context.PaymentRequests.Where(_ =>
+                        _.ExternalPaymentEntityId == externalId)
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                if (!paymentRequest.Any())
+                    return null;
+
+                if (paymentRequest.Count == 1)
+                    return paymentRequest.First();
+
+                var filtered = paymentRequest.Where(p => p.PaymentStatus != PaymentStatus.Cancelled);
+
+                if (!filtered.Any())
+                    return null;
+
+                if (filtered.Count() == 1)
+                    return filtered.First();
+
+                return filtered.FirstOrDefault(p => p.PaymentStatus != PaymentStatus.Rejected);
             }
         }
 

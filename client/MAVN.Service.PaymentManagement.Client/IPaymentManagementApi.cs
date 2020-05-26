@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MAVN.Service.PaymentManagement.Client.Models.Requests;
 using MAVN.Service.PaymentManagement.Client.Models.Responses;
@@ -51,5 +52,12 @@ namespace MAVN.Service.PaymentManagement.Client
         /// </summary>
         [Get("/api/payments/info")]
         Task<PaymentInfoResponse> GetPaymentInfoAsync([Query] GetPaymentInfoRequest request);
+
+        /// <summary>
+        /// Cancels a payment request
+        /// </summary>
+        /// <param name="request">Holds payment request id</param>
+        [Post("/api/payments/cancel")]
+        Task<PaymentCancellationErrorCode> CancelPaymentAsync([Body] CancelPaymentRequest request);
     }
 }

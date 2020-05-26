@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using MAVN.Service.PaymentManagement.Domain;
+using MAVN.Service.PaymentManagement.Domain.Enums;
 
 namespace MAVN.Service.PaymentManagement.MsSqlRepositories.Entities
 {
@@ -27,7 +28,7 @@ namespace MAVN.Service.PaymentManagement.MsSqlRepositories.Entities
         public string Currency { get; set; }
 
         [Required]
-        public string PaymentStatus { get; set; }
+        public PaymentStatus PaymentStatus { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }

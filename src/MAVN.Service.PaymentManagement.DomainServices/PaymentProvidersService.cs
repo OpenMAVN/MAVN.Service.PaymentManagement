@@ -16,6 +16,7 @@ using MAVN.Service.PaymentManagement.Domain.Enums;
 using MAVN.Service.PaymentManagement.Domain.Repositories;
 using MAVN.Service.PaymentManagement.Domain.Services;
 using StackExchange.Redis;
+using PaymentStatus = MAVN.Service.PaymentManagement.Domain.Enums.PaymentStatus;
 
 namespace MAVN.Service.PaymentManagement.DomainServices
 {
@@ -149,7 +150,7 @@ namespace MAVN.Service.PaymentManagement.DomainServices
                 Amount = data.Amount,
                 Currency = data.Currency,
                 PaymentId = result.PaymentId,
-                PaymentStatus = PaymentStatus.Pending.ToString(),
+                PaymentStatus = PaymentStatus.Pending,
                 CreatedAt = now,
                 ModifiedAt = now,
                 ExternalPaymentEntityId = data.ExternalPaymentEntityId,
@@ -171,10 +172,10 @@ namespace MAVN.Service.PaymentManagement.DomainServices
             if (paymentRequest == null)
                 return null;
 
-            if (paymentRequest.PaymentStatus == PaymentStatus.Success.ToString())
+            if (paymentRequest.PaymentStatus == PaymentStatus.Success)
             {
                 _log.Warning($"Payment marked as successful ({paymentRequest.PaymentStatus}) on {paymentRequest.ModifiedAt.ToJson()}");
-                return paymentRequest.PaymentStatus;
+                return paymentRequest.PaymentStatus.ToString();
             }
 
             var (provider, pluginUrl) = ResolvePaymentProviderClientUrlByPartner(paymentRequest.PartnerId);
@@ -193,58 +194,45 @@ namespace MAVN.Service.PaymentManagement.DomainServices
                 return paymentStatus.ErrorCode.ToString();
             }
 
-            var newStatus = paymentStatus.PaymentStatus.ToString();
+            var newStatus = (PaymentStatus)paymentStatus.PaymentStatus;
 
             if (paymentRequest.PaymentStatus == newStatus)
             {
                 _log.Warning($"Status {newStatus} hasn't changed since {paymentRequest.ModifiedAt.ToJson()}");
-                return newStatus;
+                return newStatus.ToString();
             }
 
             var paymentRequestIdStr = data.PaymentRequestId.ToString();
             var partnerIdStr = paymentRequest.PartnerId.ToString();
+            var now = DateTime.UtcNow;
 
-            for (int i = 0; i < MaxAttemptsCount; ++i)
+            await WithRedisLockAsync(async () =>
             {
-                var locked = await _db.LockTakeAsync(GetRedisKey(paymentRequestIdStr), partnerIdStr, _lockTimeout);
-
-                if (!locked)
-                {
-                    _log.Info("Couldn't lock for payment request", paymentRequestIdStr);
-                    await Task.Delay(_lockTimeout.Add(TimeSpan.FromMilliseconds(100)));
-                    continue;
-                }
-
-                var now = DateTime.UtcNow;
                 var previousStatus = paymentRequest.PaymentStatus;
                 paymentRequest.PaymentStatus = newStatus;
                 paymentRequest.ModifiedAt = now;
                 await _paymentRequestsRepository.UpdateAsync(paymentRequest);
 
                 _log.Info($"Updated payment status to {newStatus} from {previousStatus}", paymentRequestIdStr);
+            }, paymentRequestIdStr, partnerIdStr);
 
-                await _db.LockReleaseAsync(GetRedisKey(paymentRequestIdStr), partnerIdStr);
+            if ((PaymentStatus)paymentStatus.PaymentStatus != PaymentStatus.Success)
+                return newStatus.ToString();
 
-                if (paymentStatus.PaymentStatus != PaymentStatus.Success)
-                    return newStatus;
+            var evt = new PaymentCompletedEvent
+            {
+                PaymentRequestId = paymentRequestIdStr,
+                CustomerId = paymentRequest.CustomerId,
+                PartnerId = paymentRequest.PartnerId,
+                Amount = paymentRequest.Amount,
+                Currency = paymentRequest.Currency,
+                Timestamp = now,
+            };
+            await _rabbitPublisher.PublishAsync(evt);
 
-                var evt = new PaymentCompletedEvent
-                {
-                    PaymentRequestId = paymentRequestIdStr,
-                    CustomerId = paymentRequest.CustomerId,
-                    PartnerId = paymentRequest.PartnerId,
-                    Amount = paymentRequest.Amount,
-                    Currency = paymentRequest.Currency,
-                    Timestamp = now,
-                };
-                await _rabbitPublisher.PublishAsync(evt);
+            _log.Info("Publiched payment completed event", evt);
 
-                _log.Info("Publiched payment completed event", evt);
-
-                return newStatus;
-            }
-
-            throw new InvalidOperationException($"Can't lock for payment request {paymentRequestIdStr}");
+            return newStatus.ToString();
         }
 
         public async Task<string> GetPaymentUrlByExternalPaymentId(string externalPaymentId)
@@ -268,6 +256,51 @@ namespace MAVN.Service.PaymentManagement.DomainServices
                 });
 
             return paymentStatusResponse.PaymentUrl;
+        }
+
+        public async Task<bool> CancelPaymentAsync(Guid paymentRequestId)
+        {
+            var paymentRequest = await _paymentRequestsRepository.GetById(paymentRequestId);
+
+            if(paymentRequest == null)
+                return false;
+
+            var paymentRequestIdStr = paymentRequestId.ToString();
+            await WithRedisLockAsync(async () =>
+            {
+                var now = DateTime.UtcNow;
+                var previousStatus = paymentRequest.PaymentStatus;
+                paymentRequest.PaymentStatus = PaymentStatus.Cancelled;
+                paymentRequest.ModifiedAt = now;
+                await _paymentRequestsRepository.UpdateAsync(paymentRequest);
+
+                _log.Info($"Updated payment status to Cancelled from {previousStatus}", context: paymentRequestId.ToString());
+            }, paymentRequestIdStr, paymentRequest.PartnerId.ToString());
+
+            return true;
+        }
+
+        private async Task WithRedisLockAsync(Func<Task> action, string paymentRequestIdStr, string redisValue)
+        {
+            var redisKey = GetRedisKey(paymentRequestIdStr);
+            for (var i = 0; i < MaxAttemptsCount; ++i)
+            {
+                var locked = await _db.LockTakeAsync(redisKey, redisValue, _lockTimeout);
+
+                if (!locked)
+                {
+                    _log.Info("Couldn't lock for payment request", redisKey);
+                    await Task.Delay(_lockTimeout.Add(TimeSpan.FromMilliseconds(100)));
+                    continue;
+                }
+
+                await action();
+
+                await _db.LockReleaseAsync(redisKey, redisValue);
+                return;
+            }
+
+            throw new InvalidOperationException($"Can't lock for payment request {paymentRequestIdStr}");
         }
 
         private string GetRedisKey(string paymentRequestId)

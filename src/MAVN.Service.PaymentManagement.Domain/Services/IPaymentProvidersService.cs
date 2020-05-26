@@ -19,5 +19,7 @@ namespace MAVN.Service.PaymentManagement.Domain.Services
         Task<string> ValidatePaymentAsync(PaymentValidationData data);
 
         Task<string> GetPaymentUrlByExternalPaymentId(string externalPaymentId);
+
+        Task<bool> CancelPaymentAsync(Guid paymentRequestId);
     }
 }

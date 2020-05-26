@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using MAVN.Service.PaymentIntegrationPlugin.Client.Models.Requests;
 using MAVN.Service.PaymentManagement.Client;
 using MAVN.Service.PaymentManagement.Client.Models.Requests;
 using MAVN.Service.PaymentManagement.Client.Models.Responses;
@@ -82,6 +83,22 @@ namespace MAVN.Service.PaymentManagement.Controllers
             var result = await _paymentProvidersService.GeneratePaymentAsync(requestData);
 
             return _mapper.Map<PaymentGenerationResponse>(result);
+        }
+
+        /// <summary>
+        /// Cancels a payment request
+        /// </summary>
+        /// <param name="request">request</param>
+        [HttpPost("cancel")]
+        [ProducesResponseType(typeof(PaymentCancellationErrorCode), (int)HttpStatusCode.OK)]
+        public async Task<PaymentCancellationErrorCode> CancelPaymentAsync([FromBody] CancelPaymentRequest request)
+        {
+            var paymentCancelled = await _paymentProvidersService.CancelPaymentAsync(request.PaymentRequestId);
+
+            if (!paymentCancelled)
+                return PaymentCancellationErrorCode.PaymentDoesNotExist;
+
+            return PaymentCancellationErrorCode.None;
         }
 
         /// <summary>
