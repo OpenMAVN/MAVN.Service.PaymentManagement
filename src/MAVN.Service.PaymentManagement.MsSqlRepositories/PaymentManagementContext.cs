@@ -1,8 +1,11 @@
 ﻿using System.Data.Common;
 using JetBrains.Annotations;
 using MAVN.Common.MsSql;
+using MAVN.Service.PaymentManagement.Domain.Enums;
 using MAVN.Service.PaymentManagement.MsSqlRepositories.Entities;
+using Microsoft.AspNetCore.JsonPatch.Operations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MAVN.Service.PaymentManagement.MsSqlRepositories
 {
@@ -48,7 +51,10 @@ namespace MAVN.Service.PaymentManagement.MsSqlRepositories
 
             modelBuilder.Entity<PaymentRequestEntity>()
                 .HasIndex(p => p.ExternalPaymentEntityId)
-                .IsUnique();
+                .IsUnique(false);
+
+            modelBuilder.Entity<PaymentRequestEntity>().Property(c => c.PaymentStatus)
+                .HasConversion(new EnumToStringConverter<PaymentStatus>());
         }
     }
 }

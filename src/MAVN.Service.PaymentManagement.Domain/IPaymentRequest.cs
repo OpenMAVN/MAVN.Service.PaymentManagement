@@ -1,4 +1,5 @@
 ﻿using System;
+using MAVN.Service.PaymentManagement.Domain.Enums;
 
 namespace MAVN.Service.PaymentManagement.Domain
 {
@@ -16,7 +17,7 @@ namespace MAVN.Service.PaymentManagement.Domain
 
         public string Currency { get; set; }
 
-        public string PaymentStatus { get; set; }
+        public PaymentStatus PaymentStatus { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
