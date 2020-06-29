@@ -1,6 +1,6 @@
 ﻿using System.Data.Common;
 using JetBrains.Annotations;
-using MAVN.Common.MsSql;
+using MAVN.Persistence.PostgreSQL.Legacy;
 using MAVN.Service.PaymentManagement.Domain.Enums;
 using MAVN.Service.PaymentManagement.MsSqlRepositories.Entities;
 using Microsoft.AspNetCore.JsonPatch.Operations;
@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MAVN.Service.PaymentManagement.MsSqlRepositories
 {
-    public class PaymentManagementContext : MsSqlContext
+    public class PaymentManagementContext : PostgreSQLContext
     {
         private const string Schema = "payment";
 
@@ -38,7 +38,7 @@ namespace MAVN.Service.PaymentManagement.MsSqlRepositories
         {
         }
 
-        protected override void OnLykkeModelCreating(ModelBuilder modelBuilder)
+        protected override void OnMAVNModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<PaymentRequestEntity>()
                 .HasIndex(p => p.CustomerId);
