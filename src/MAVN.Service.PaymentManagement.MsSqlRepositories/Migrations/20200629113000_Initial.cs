@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MAVN.Service.PaymentManagement.MsSqlRepositories.Migrations
 {
-    public partial class InitialMigration : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -23,7 +23,8 @@ namespace MAVN.Service.PaymentManagement.MsSqlRepositories.Migrations
                     Currency = table.Column<string>(nullable: false),
                     PaymentStatus = table.Column<string>(nullable: false),
                     CreatedAt = table.Column<DateTime>(nullable: false),
-                    ModifiedAt = table.Column<DateTime>(nullable: false)
+                    ModifiedAt = table.Column<DateTime>(nullable: false),
+                    ExternalPaymentEntityId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -41,6 +42,12 @@ namespace MAVN.Service.PaymentManagement.MsSqlRepositories.Migrations
                 schema: "payment",
                 table: "payment_requests",
                 column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_payment_requests_ExternalPaymentEntityId",
+                schema: "payment",
+                table: "payment_requests",
+                column: "ExternalPaymentEntityId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_payment_requests_PartnerId",

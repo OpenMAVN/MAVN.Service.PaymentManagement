@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using MAVN.Common.MsSql;
+using MAVN.Persistence.PostgreSQL.Legacy;
 using MAVN.Service.PaymentManagement.Domain;
 using MAVN.Service.PaymentManagement.Domain.Enums;
 using MAVN.Service.PaymentManagement.Domain.Repositories;

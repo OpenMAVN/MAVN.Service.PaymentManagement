@@ -7,7 +7,6 @@ namespace MAVN.Service.PaymentManagement.Settings
         [AzureTableCheck]
         public string LogsConnString { get; set; }
 
-        [SqlCheck]
         public string SqlDbConnString { get; set; }
     }
 }

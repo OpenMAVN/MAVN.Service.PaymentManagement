@@ -1,7 +1,7 @@
-using Autofac;
+﻿using Autofac;
 using JetBrains.Annotations;
-using MAVN.Common.MsSql;
 using Lykke.SettingsReader;
+using MAVN.Persistence.PostgreSQL.Legacy;
 using MAVN.Service.PaymentManagement.Domain.Repositories;
 using MAVN.Service.PaymentManagement.MsSqlRepositories;
 using MAVN.Service.PaymentManagement.MsSqlRepositories.Repositories;
@@ -25,7 +25,7 @@ namespace MAVN.Service.PaymentManagement.Modules
                 .As<IPaymentRequestsRepository>()
                 .SingleInstance();
 
-            builder.RegisterMsSql(
+            builder.RegisterPostgreSQL(
                 _connectionString,
                 connString => new PaymentManagementContext(connString, false),
                 dbConn => new PaymentManagementContext(dbConn));
